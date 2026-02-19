@@ -140,7 +140,7 @@ export function Sidebar() {
         >
             <div className="flex h-16 items-center border-b px-4 justify-between">
                 <div className={cn("flex items-center gap-2 overflow-hidden", isCollapsed && "justify-center w-full")}>
-                    <GtHoverLogo className="w-8 p-0 shrink-0" />
+                    <GtHoverLogo className="w-8 p-0 shrink-0" alwaysActive />
                     {!isCollapsed && <span className="text-lg font-semibold truncate">Gestão Calibração</span>}
                 </div>
             </div>

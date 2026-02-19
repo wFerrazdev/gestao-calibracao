@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-export const GtHoverLogo = ({ className }: { className?: string }) => {
+export const GtHoverLogo = ({ className, alwaysActive = false }: { className?: string; alwaysActive?: boolean }) => {
     return (
         <motion.div
             className={cn(
@@ -13,7 +13,7 @@ export const GtHoverLogo = ({ className }: { className?: string }) => {
             )}
             initial="initial"
             whileHover="hover"
-            animate="initial"
+            animate={alwaysActive ? "hover" : "initial"}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
