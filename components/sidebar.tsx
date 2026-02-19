@@ -132,61 +132,61 @@ export function Sidebar() {
     ];
 
     return (
-        <div
-            className={cn(
-                'flex h-screen flex-col border-r bg-card transition-all duration-300',
-                isCollapsed ? 'w-20' : 'w-64'
-            )}
-        >
-            <div className="flex h-16 items-center border-b px-4 justify-between">
-                <div className={cn("flex items-center gap-2 overflow-hidden", isCollapsed && "justify-center w-full")}>
-                    <GtHoverLogo className="w-8 p-0 shrink-0" alwaysActive />
-                    {!isCollapsed && <span className="text-lg font-semibold truncate">Gestão Calibração</span>}
+        <TooltipProvider delayDuration={0}>
+            <div
+                className={cn(
+                    'flex h-screen flex-col border-r bg-card transition-all duration-300',
+                    isCollapsed ? 'w-20' : 'w-64'
+                )}
+            >
+                <div className="flex h-16 items-center border-b px-4 justify-between">
+                    <div className={cn("flex items-center gap-2 overflow-hidden", isCollapsed && "justify-center w-full")}>
+                        <GtHoverLogo className="w-8 p-0 shrink-0" alwaysActive />
+                        {!isCollapsed && <span className="text-lg font-semibold truncate">Gestão Calibração</span>}
+                    </div>
                 </div>
-            </div>
 
-            <nav className="flex-1 space-y-1 p-2">
-                <TooltipProvider delayDuration={0}>
+                <nav className="flex-1 space-y-1 p-2">
                     {navLinks.map((link) => {
                         if (!link.show) return null;
 
                         const Icon = link.icon;
                         const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
 
-                        return (
-                            <Tooltip key={link.href}>
-                                <TooltipTrigger asChild>
-                                    <Link
-                                        href={link.href}
-                                        className={cn(
-                                            'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                                            isActive
-                                                ? 'bg-primary text-primary-foreground'
-                                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                                            isCollapsed && 'justify-center px-2'
-                                        )}
-                                    >
-                                        <Icon className="h-5 w-5 shrink-0" />
-                                        {!isCollapsed && <span className="truncate">{link.label}</span>}
-                                    </Link>
-                                </TooltipTrigger>
-                                {isCollapsed && (
-                                    <TooltipContent side="right">
-                                        {link.label}
-                                    </TooltipContent>
+                        const LinkContent = (
+                            <Link
+                                href={link.href}
+                                className={cn(
+                                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                                    isActive
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                                    isCollapsed && 'justify-center px-2'
                                 )}
-                            </Tooltip>
+                            >
+                                <Icon className="h-5 w-5 shrink-0" />
+                                {!isCollapsed && <span className="truncate">{link.label}</span>}
+                            </Link>
                         );
+
+                        if (isCollapsed) {
+                            return (
+                                <Tooltip key={link.href}>
+                                    <TooltipTrigger asChild>{LinkContent}</TooltipTrigger>
+                                    <TooltipContent side="right">{link.label}</TooltipContent>
+                                </Tooltip>
+                            );
+                        }
+
+                        return <div key={link.href}>{LinkContent}</div>;
                     })}
-                </TooltipProvider>
-            </nav>
+                </nav>
 
-            <Separator />
+                <Separator />
 
-            <div className="p-2 space-y-2">
-                {/* Toggle Button */}
-                <TooltipProvider delayDuration={0}>
-                    <Tooltip>
+                <div className="p-2 space-y-2">
+                    {/* Toggle Button */}
+                    <Tooltip key="toggle-sidebar">
                         <TooltipTrigger asChild>
                             <Button
                                 variant="ghost"
@@ -199,14 +199,12 @@ export function Sidebar() {
                         </TooltipTrigger>
                         {isCollapsed && <TooltipContent side="right">Expandir Sidebar</TooltipContent>}
                     </Tooltip>
-                </TooltipProvider>
 
-                {/* User Info */}
-                <div className={cn("flex items-center gap-3 rounded-md bg-muted p-2 overflow-hidden transition-all", isCollapsed && "justify-center px-0 bg-transparent")}>
-                    <TooltipProvider delayDuration={0}>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center cursor-default">
+                    {/* User Info */}
+                    <Tooltip key="user-info">
+                        <TooltipTrigger asChild>
+                            <div className={cn("flex items-center gap-3 rounded-md bg-muted p-2 overflow-hidden transition-all", isCollapsed && "justify-center px-0 bg-transparent cursor-default")}>
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center">
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src={user?.photoUrl || undefined} className="object-cover" />
                                         <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
@@ -214,27 +212,25 @@ export function Sidebar() {
                                         </AvatarFallback>
                                     </Avatar>
                                 </div>
-                            </TooltipTrigger>
-                            {isCollapsed && (
-                                <TooltipContent side="right">
-                                    <p>{user?.name}</p>
-                                    <p className="text-xs text-muted-foreground">{user?.email}</p>
-                                </TooltipContent>
-                            )}
-                        </Tooltip>
-                    </TooltipProvider>
 
-                    {!isCollapsed && (
-                        <div className="flex-1 overflow-hidden">
-                            <div className="truncate text-sm font-medium">{user?.name || 'Usuário'}</div>
-                            <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
-                        </div>
-                    )}
-                </div>
+                                {!isCollapsed && (
+                                    <div className="flex-1 overflow-hidden">
+                                        <div className="truncate text-sm font-medium">{user?.name || 'Usuário'}</div>
+                                        <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
+                                    </div>
+                                )}
+                            </div>
+                        </TooltipTrigger>
+                        {isCollapsed && (
+                            <TooltipContent side="right">
+                                <p>{user?.name}</p>
+                                <p className="text-xs text-muted-foreground">{user?.email}</p>
+                            </TooltipContent>
+                        )}
+                    </Tooltip>
 
-                {/* Logout Button */}
-                <TooltipProvider delayDuration={0}>
-                    <Tooltip>
+                    {/* Logout Button */}
+                    <Tooltip key="logout">
                         <TooltipTrigger asChild>
                             <Button
                                 variant="outline"
@@ -247,8 +243,8 @@ export function Sidebar() {
                         </TooltipTrigger>
                         {isCollapsed && <TooltipContent side="right">Sair do Sistema</TooltipContent>}
                     </Tooltip>
-                </TooltipProvider>
+                </div>
             </div>
-        </div>
+        </TooltipProvider>
     );
 }
