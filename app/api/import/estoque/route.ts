@@ -42,40 +42,83 @@ export async function POST(request: Request) {
                     where: { code }
                 });
 
-                if (!equipment) {
-                    errors.push(`Linha ${index + 2}: Código "${code}" não encontrado no cadastro mestre.`);
-                    continue;
+                if (equipment) {
+                    // Atualizar equipamento existente
+                    let equipmentTypeId = equipment.equipmentTypeId;
+                    if (typeName) {
+                        let dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
+                        if (!dbType) {
+                            dbType = await prisma.equipmentType.create({ data: { name: typeName } });
+                        }
+                        equipmentTypeId = dbType.id;
+                    }
+
+                    await prisma.equipment.update({
+                        where: { id: equipment.id },
+                        data: {
+                            name: name || equipment.name,
+                            equipmentTypeId,
+                            location: location || equipment.location,
+                            manufacturerModel: model || equipment.manufacturerModel,
+                            resolution: resolution || equipment.resolution,
+                            capacity: capacity || equipment.capacity,
+                            responsible: responsible || equipment.responsible,
+                            workingRange: workingRange || equipment.workingRange,
+                            unit: unit || equipment.unit,
+                            usageStatus: 'IN_STOCK'
+                        }
+                    });
+                    updatedCount++;
+                } else {
+                    // Criar novo equipamento diretamente no estoque
+                    if (!name) {
+                        errors.push(`Linha ${index + 2}: Equipamento novo precisa de um Nome.`);
+                        continue;
+                    }
+
+                    // Resolver Setor "Geral" para novos itens se não houver lógica de setor no template de estoque
+                    let dbSector = await prisma.sector.findFirst({ where: { name: 'Geral' } });
+                    if (!dbSector) {
+                        dbSector = await prisma.sector.create({ data: { name: 'Geral', code: 'GERAL' } });
+                    }
+
+                    // Resolver Tipo
+                    let typeId;
+                    if (typeName) {
+                        let dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
+                        if (!dbType) {
+                            dbType = await prisma.equipmentType.create({ data: { name: typeName } });
+                        }
+                        typeId = dbType.id;
+                    } else {
+                        let dbType = await prisma.equipmentType.findUnique({ where: { name: 'Outros' } });
+                        if (!dbType) {
+                            dbType = await prisma.equipmentType.create({ data: { name: 'Outros' } });
+                        }
+                        typeId = dbType.id;
+                    }
+
+                    await prisma.equipment.create({
+                        data: {
+                            code,
+                            name,
+                            equipmentTypeId: typeId,
+                            sectorId: dbSector.id,
+                            location: location,
+                            manufacturerModel: model,
+                            resolution: resolution,
+                            capacity: capacity,
+                            responsible: responsible,
+                            workingRange: workingRange,
+                            unit: unit,
+                            usageStatus: 'IN_STOCK',
+                            status: 'VENCIDO' // Padrão para novos sem data de calibração
+                        }
+                    });
+                    updatedCount++;
                 }
 
-                // Resolver Tipo de Equipamento se fornecido
-                let equipmentTypeId = equipment.equipmentTypeId;
-                if (typeName) {
-                    let dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
-                    if (!dbType) {
-                        dbType = await prisma.equipmentType.create({ data: { name: typeName } });
-                    }
-                    equipmentTypeId = dbType.id;
-                }
-
-                // Atualizar equipamento com novos detalhes e status para estoque
-                await prisma.equipment.update({
-                    where: { id: equipment.id },
-                    data: {
-                        name: name || equipment.name,
-                        equipmentTypeId,
-                        location: location || equipment.location,
-                        manufacturerModel: model || equipment.manufacturerModel,
-                        resolution: resolution || equipment.resolution,
-                        capacity: capacity || equipment.capacity,
-                        responsible: responsible || equipment.responsible,
-                        workingRange: workingRange || equipment.workingRange,
-                        unit: unit || equipment.unit,
-                        usageStatus: 'IN_STOCK'
-                    }
-                });
-
-                updatedCount++;
-
+                // (Increment handled inside if/else)
             } catch (err) {
                 console.error(`Erro ao atualizar estoque linha ${index}:`, err);
                 errors.push(`Linha ${index + 2}: Erro interno ao atualizar.`);
