@@ -1,10 +1,11 @@
-'use client';
-
-import { FileText, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { FileText, Trash2, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import {
     Tooltip,
     TooltipContent,
@@ -21,6 +22,7 @@ interface CalibrationRecord {
     status: 'APPROVED' | 'REJECTED' | null;
     notes: string | null;
     attachmentUrl: string | null;
+    attachmentKey: string | null;
 }
 
 interface CalibrationTimelineItemProps {
@@ -36,9 +38,48 @@ export function CalibrationTimelineItem({
     isCreator,
     index
 }: CalibrationTimelineItemProps) {
+    const { firebaseUser } = useAuth();
+    const [isDownloading, setIsDownloading] = useState(false);
     const isApproved = calibration.status === 'APPROVED';
     const isRejected = calibration.status === 'REJECTED';
     const isNeutral = !calibration.status;
+
+    const handleDownload = async () => {
+        if (!calibration.attachmentKey) {
+            // Fallback for old records that might only have attachmentUrl
+            if (calibration.attachmentUrl) {
+                window.open(calibration.attachmentUrl, '_blank');
+            }
+            return;
+        }
+
+        if (!firebaseUser) {
+            toast.error('Usuário não autenticado');
+            return;
+        }
+
+        setIsDownloading(true);
+        try {
+            const token = await firebaseUser.getIdToken();
+            const res = await fetch(`/api/upload/presigned-download?key=${encodeURIComponent(calibration.attachmentKey)}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!res.ok) throw new Error('Falha ao gerar URL');
+
+            const { url } = await res.json();
+            window.open(url, '_blank');
+        } catch (error) {
+            console.error('Erro ao baixar certificado:', error);
+            toast.error('Erro ao abrir o certificado');
+            // Fallback para URL direta se existir
+            if (calibration.attachmentUrl) {
+                window.open(calibration.attachmentUrl, '_blank');
+            }
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     // Opacidade progressiva para itens antigos (Stitch effect)
     const opacityClass = index >= 3 ? 'opacity-70 group-hover:opacity-100 transition-opacity' : '';
@@ -133,10 +174,15 @@ export function CalibrationTimelineItem({
                                         <Button
                                             variant="outline"
                                             size="sm"
+                                            disabled={isDownloading}
                                             className="h-9 px-3 border-gray-200 dark:border-gray-700 hover:text-red-500 hover:border-red-500 transition-colors"
-                                            onClick={() => window.open(calibration.attachmentUrl!, '_blank')}
+                                            onClick={handleDownload}
                                         >
-                                            <FileText className="h-4 w-4 mr-1.5 text-red-500" />
+                                            {isDownloading ? (
+                                                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                                            ) : (
+                                                <FileText className="h-4 w-4 mr-1.5 text-red-500" />
+                                            )}
                                             PDF
                                         </Button>
                                     </TooltipTrigger>
