@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/sonner';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Gestão de Calibração - ERP/CMMS',
+  title: 'Gestão de Equipamentos',
   description: 'Sistema de gerenciamento de calibrações de equipamentos',
 };
 
