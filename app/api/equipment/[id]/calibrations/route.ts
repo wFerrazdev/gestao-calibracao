@@ -7,12 +7,11 @@ import { createAuditLog } from '@/lib/audit';
 
 export async function GET(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const params = await props.params;
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
-        const { id } = params;
 
         // Verificar se equipamento existe e se usuário tem acesso
         const equipment = await prisma.equipment.findUnique({
@@ -62,10 +61,10 @@ export async function GET(
 
 export async function POST(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const params = await props.params;
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
 
         // Apenas QUALIDADE, ADMIN e CRIADOR podem adicionar calibração
@@ -76,7 +75,7 @@ export async function POST(
             );
         }
 
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json() as any; // TODO: strict type
 
         // Verificar se equipamento existe

@@ -4,9 +4,10 @@ import { prisma } from '@/lib/db';
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
         if (!user || user.role === 'VIEWER') {
             return new NextResponse('Unauthorized', { status: 401 });
@@ -20,7 +21,7 @@ export async function PUT(
         }
 
         const supplier = await prisma.supplier.update({
-            where: { id: params.id },
+            where: { id },
             data: {
                 name,
                 email,
@@ -39,9 +40,10 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
         if (!user || user.role === 'VIEWER') {
             return new NextResponse('Unauthorized', { status: 401 });
@@ -49,7 +51,7 @@ export async function DELETE(
 
         // Check for related records (Service Orders)
         const relatedOrders = await prisma.serviceOrder.count({
-            where: { supplierId: params.id },
+            where: { supplierId: id },
         });
 
         if (relatedOrders > 0) {
@@ -60,7 +62,7 @@ export async function DELETE(
         }
 
         await prisma.supplier.delete({
-            where: { id: params.id },
+            where: { id },
         });
 
         return new NextResponse(null, { status: 204 });

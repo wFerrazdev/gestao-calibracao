@@ -4,10 +4,10 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const params = await props.params;
+        const { id } = await params;
         console.log('API: GET /api/quote-requests/[id] called');
         const user = await getCurrentUser();
         console.log('API: User authenticated:', user?.id);
@@ -17,7 +17,6 @@ export async function GET(
             return new NextResponse('Unauthorized', { status: 401 });
         }
 
-        const id = params.id;
         console.log('API: Fetching quote request with ID:', id);
 
         const quoteRequest = await prisma.quoteRequest.findUnique({
@@ -65,17 +64,16 @@ export async function GET(
 
 export async function DELETE(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const params = await props.params;
+        const { id } = await params;
         const user = await getCurrentUser();
 
         if (!user || user.role === 'VIEWER') {
             return new NextResponse('Unauthorized', { status: 401 });
         }
 
-        const id = params.id;
         console.log(`API: Cancelling quote request ${id}`);
 
         // Using transaction to ensure both are deleted or neither is

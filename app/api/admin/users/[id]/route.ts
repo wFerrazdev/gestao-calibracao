@@ -10,9 +10,8 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params;
+        const { id: targetUserId } = await params;
         const currentUser = await getCurrentUser();
-        const targetUserId = id;
 
         // 1. Verificar permissões
         const isCurrentUserCriador = isCriador(currentUser.firebaseUid);

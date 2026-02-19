@@ -8,13 +8,11 @@ import { deleteFile, extractKeyFromUrl } from '@/lib/r2';
 
 export async function GET(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const params = await props.params;
-
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
-        const { id } = params;
 
         const equipment = await prisma.equipment.findUnique({
             where: { id },
@@ -55,11 +53,10 @@ export async function GET(
 
 export async function PATCH(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const params = await props.params;
-
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
 
         // Apenas ADMIN e CRIADOR podem editar
@@ -70,7 +67,7 @@ export async function PATCH(
             );
         }
 
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json();
 
         // Verificar se equipamento existe
@@ -153,11 +150,10 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    props: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const params = await props.params;
-
     try {
+        const { id } = await params;
         const user = await getCurrentUser();
 
         // Apenas ADMIN e CRIADOR podem deletar
