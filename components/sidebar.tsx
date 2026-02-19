@@ -39,6 +39,8 @@ import {
 } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
+import { GtHoverLogo } from './ui/gt-hover-logo';
+
 export function Sidebar() {
     const pathname = usePathname();
     const { user, permissions, isCriador } = useUser();
@@ -138,7 +140,7 @@ export function Sidebar() {
         >
             <div className="flex h-16 items-center border-b px-4 justify-between">
                 <div className={cn("flex items-center gap-2 overflow-hidden", isCollapsed && "justify-center w-full")}>
-                    <Wrench className="h-6 w-6 text-primary shrink-0" />
+                    <GtHoverLogo className="w-8 p-0 shrink-0" />
                     {!isCollapsed && <span className="text-lg font-semibold truncate">Gestão Calibração</span>}
                 </div>
             </div>
