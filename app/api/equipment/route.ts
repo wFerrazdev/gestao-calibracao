@@ -148,6 +148,9 @@ export async function POST(request: Request) {
             );
             dueDate = result.dueDate;
             status = result.status;
+        } else {
+            // Se não tem data de calibração, deve ser REFERÊNCIA (prioridade máxima)
+            status = 'REFERENCIA';
         }
 
         const equipment = await prisma.equipment.create({

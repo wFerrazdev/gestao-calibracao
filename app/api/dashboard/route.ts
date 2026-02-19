@@ -135,8 +135,10 @@ export async function GET(request: Request) {
         });
 
         // Saúde dos setores (% calibrado)
-        const sectorHealth = await Promise.all(
-            sectors.map(async sector => {
+        // Incluir "Estoque" (setorId = null)
+        const allSectorHealth = await Promise.all([
+            // Setores normais
+            ...sectors.map(async sector => {
                 const total = await prisma.equipment.count({
                     where: { sectorId: sector.id },
                 });
@@ -157,8 +159,38 @@ export async function GET(request: Request) {
                     calibrated,
                     score,
                 };
-            })
-        );
+            }),
+            // Item "Estoque" (equipamentos sem setor atribuído)
+            (async () => {
+                // Para o Estoque, ignoramos REFERENCIA no cálculo de saúde
+                const total = await prisma.equipment.count({
+                    where: {
+                        sectorId: null,
+                        status: { not: 'REFERENCIA' }
+                    },
+                });
+
+                const calibrated = await prisma.equipment.count({
+                    where: {
+                        sectorId: null,
+                        status: 'CALIBRADO',
+                    },
+                });
+
+                const score = total > 0 ? Math.round((calibrated / total) * 100) : 0;
+
+                return {
+                    sectorId: 'estoque-bucket',
+                    sectorName: 'Estoque',
+                    total,
+                    calibrated,
+                    score,
+                };
+            })()
+        ]);
+
+        // Filtrar apenas se houver equipamentos para não poluir
+        const filteredSectorHealth = allSectorHealth.filter(s => s.total > 0 || s.calibrated > 0 || (s.sectorId !== 'estoque-bucket'));
 
         // --- NOVAS METRICAS DE QUALIDADE ---
 
@@ -202,7 +234,7 @@ export async function GET(request: Request) {
             upcomingDue,
             calibrationsByMonth: calibrationsByMonthArray,
             equipmentByType: equipmentByTypeArray,
-            sectorHealthScores: sectorHealth,
+            sectorHealthScores: filteredSectorHealth,
             approvalRate,
             recentFailures,
         });
