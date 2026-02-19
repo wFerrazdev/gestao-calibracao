@@ -11,6 +11,19 @@ interface AuthShellProps {
 }
 
 export function AuthShell({ children }: AuthShellProps) {
+    const [effectsEnabled, setEffectsEnabled] = React.useState(true);
+
+    React.useEffect(() => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        // @ts-ignore
+        const hardwareConcurrency = navigator.hardwareConcurrency || 4;
+        // @ts-ignore
+        const deviceMemory = navigator.deviceMemory || 4;
+
+        const lowEnd = hardwareConcurrency <= 4 || deviceMemory <= 4;
+        setEffectsEnabled(!(reduceMotion || lowEnd));
+    }, []);
+
     return (
         <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-x-hidden">
             {/* Background Wrapper - Fixed & Clipped */}
@@ -29,7 +42,7 @@ export function AuthShell({ children }: AuthShellProps) {
                 <div className="absolute inset-0 bg-white dark:bg-[#020c1b] -z-20"></div>
 
                 {/* Layer 1: Background Beams */}
-                <BackgroundBeams className="absolute inset-0 -z-10" />
+                <BackgroundBeams className="absolute inset-0 -z-10" effectsEnabled={effectsEnabled} />
             </div>
 
             <div className="absolute top-4 right-4 z-50">
@@ -37,7 +50,10 @@ export function AuthShell({ children }: AuthShellProps) {
             </div>
 
             <div className="flex flex-col items-center justify-center p-4 relative z-10 w-full">
-                <div className="w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-[0_24px_80px_-30px_rgba(0,0,0,0.35)] dark:shadow-[0_30px_110px_-40px_rgba(0,0,0,0.85)] dark:ring-1 dark:ring-white/10 dark:bg-[#0b1727] grid lg:grid-cols-2 relative z-20">
+                <div className={cn(
+                    "w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-[0_24px_80px_-30px_rgba(0,0,0,0.35)] dark:shadow-[0_30px_110px_-40px_rgba(0,0,0,0.85)] dark:ring-1 dark:ring-white/10 dark:bg-[#0b1727] grid lg:grid-cols-2 relative z-20",
+                    effectsEnabled ? "backdrop-blur-xl" : "backdrop-blur-sm"
+                )}>
                     <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16 bg-white/50 dark:bg-[#0A192F]/50 h-full">
                         {children}
                     </div>
@@ -52,7 +68,7 @@ export function AuthShell({ children }: AuthShellProps) {
                         </div>
 
                         <div className="relative z-10 flex h-full w-full items-center justify-center">
-                            <GtHoverLogo className="w-[280px] sm:w-[320px] md:w-[360px]" />
+                            <GtHoverLogo className="w-[280px] sm:w-[320px] md:w-[360px]" effectsEnabled={effectsEnabled} />
                         </div>
                     </div>
                 </div>
