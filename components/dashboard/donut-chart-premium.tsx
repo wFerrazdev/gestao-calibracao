@@ -27,7 +27,7 @@ export function DonutChartPremium({ data }: DonutChartProps) {
     if (total === 0) {
         return (
             <ChartCardPremium title="Distribuição por Tipo" icon={PieChartIcon} iconColor="text-cyan-500 dark:text-cyan-400">
-                <div className="flex h-full min-h-[350px] items-center justify-center rounded-2xl border border-dashed p-8 text-muted-foreground">
+                <div className="flex h-full items-center justify-center rounded-2xl border border-dashed p-8 text-muted-foreground">
                     Sem dados para exibir
                 </div>
             </ChartCardPremium>
@@ -37,7 +37,7 @@ export function DonutChartPremium({ data }: DonutChartProps) {
     return (
         <ChartCardPremium title="Distribuição por Tipo" icon={PieChartIcon} iconColor="text-cyan-500 dark:text-cyan-400">
             <div className="flex-1 w-full flex flex-col items-center justify-center p-4">
-                <div className="relative w-full h-full min-h-[280px] flex items-center justify-center">
+                <div className="relative w-full h-full flex items-center justify-center">
                     {/* Glow Effect - positioned behind the chart */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-cyan-500/10 blur-3xl rounded-full pointer-events-none" />
 

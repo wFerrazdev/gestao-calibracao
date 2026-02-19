@@ -22,13 +22,13 @@ export function ChartCardPremium({
     children,
     className,
     rightSlot,
-    height = "h-[400px]",
+    height = "h-[360px]", // Altura fixa literal
     scrollable = false
 }: ChartCardPremiumProps) {
     return (
         <div className={cn(
             "relative rounded-2xl bg-white dark:bg-[#1e2330] border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-2xl flex flex-col transition-colors duration-300 overflow-hidden",
-            height,
+            height, // Aqui garantimos a classe h-[360px]
             className
         )}>
             {/* Background Decoration Container */}
@@ -38,7 +38,7 @@ export function ChartCardPremium({
             </div>
 
             <div className="relative p-6 flex flex-col h-full z-10 overflow-hidden">
-                {/* Header Section - Height fixed by content/spacing */}
+                {/* Header Section - Fixo para não empurrar o conteúdo */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 flex-shrink-0">
                     <div>
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -51,7 +51,7 @@ export function ChartCardPremium({
                     )}
                 </div>
 
-                {/* Content Container - Flexible area */}
+                {/* Content Container - flex-1 min-h-0 essencial para altura fixa e scroll interno */}
                 <div className={cn(
                     "flex-1 w-full min-h-0 relative",
                     scrollable ? "overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent hover:scrollbar-thumb-slate-300 dark:hover:scrollbar-thumb-slate-600" : "overflow-hidden"
