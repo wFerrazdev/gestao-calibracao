@@ -187,6 +187,15 @@ export async function POST(request: Request) {
         return NextResponse.json(equipment, { status: 201 });
     } catch (error: any) {
         console.error('Error creating equipment:', error);
+
+        // Tratar erro de código duplicado (Unique constraint)
+        if (error.code === 'P2002') {
+            return NextResponse.json(
+                { error: 'Já existe um equipamento cadastrado com este Código.' },
+                { status: 409 }
+            );
+        }
+
         return NextResponse.json(
             { error: error.message || 'Erro ao criar equipamento' },
             { status: 500 }

@@ -189,8 +189,8 @@ export async function GET(request: Request) {
             })()
         ]);
 
-        // Filtrar apenas se houver equipamentos para não poluir
-        const filteredSectorHealth = allSectorHealth.filter(s => s.total > 0 || s.calibrated > 0 || (s.sectorId !== 'estoque-bucket'));
+        // Filtrar apenas se houver equipamentos para não poluir, mas SEMPRE permitir o bucket de Estoque se ele tiver o nome correto
+        const filteredSectorHealth = allSectorHealth.filter(s => s.total > 0 || s.calibrated > 0 || s.sectorName === 'Estoque');
 
         // --- NOVAS METRICAS DE QUALIDADE ---
 
