@@ -22,7 +22,15 @@ export async function POST(request: Request) {
         for (const [index, item] of items.entries()) {
             try {
                 const code = item['Código'] ? String(item['Código']).trim() : null;
+                const name = item['Nome'] ? String(item['Nome']).trim() : null;
+                const typeName = item['Tipo'] ? String(item['Tipo']).trim() : null;
                 const location = item['Localização'] ? String(item['Localização']).trim() : null;
+                const model = item['Modelo'] ? String(item['Modelo']).trim() : null;
+                const resolution = item['Resolução'] ? String(item['Resolução']).trim() : null;
+                const capacity = item['Capacidade'] ? String(item['Capacidade']).trim() : null;
+                const responsible = item['Responsável'] ? String(item['Responsável']).trim() : null;
+                const workingRange = item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']).trim() : null;
+                const unit = item['Unidade de Medida'] ? String(item['Unidade de Medida']).trim() : null;
 
                 if (!code) {
                     errors.push(`Linha ${index + 2}: Código ausente.`);
@@ -39,17 +47,30 @@ export async function POST(request: Request) {
                     continue;
                 }
 
-                // Atualizar localização e status para estoque
+                // Resolver Tipo de Equipamento se fornecido
+                let equipmentTypeId = equipment.equipmentTypeId;
+                if (typeName) {
+                    let dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
+                    if (!dbType) {
+                        dbType = await prisma.equipmentType.create({ data: { name: typeName } });
+                    }
+                    equipmentTypeId = dbType.id;
+                }
+
+                // Atualizar equipamento com novos detalhes e status para estoque
                 await prisma.equipment.update({
                     where: { id: equipment.id },
                     data: {
-                        location: location,
-                        usageStatus: 'IN_STOCK',
-                        // Ao mover para estoque, o setor deixa de ser relevante ou mantemos o anterior?
-                        // Geralmente em estoque o "setor" é o próprio almoxarifado, mas o schema
-                        // usa o campo location para endereçamento fino.
-                        // Vamos manter o sectorId atual ou limpar? 
-                        // O plano diz apenas "update location".
+                        name: name || equipment.name,
+                        equipmentTypeId,
+                        location: location || equipment.location,
+                        manufacturerModel: model || equipment.manufacturerModel,
+                        resolution: resolution || equipment.resolution,
+                        capacity: capacity || equipment.capacity,
+                        responsible: responsible || equipment.responsible,
+                        workingRange: workingRange || equipment.workingRange,
+                        unit: unit || equipment.unit,
+                        usageStatus: 'IN_STOCK'
                     }
                 });
 

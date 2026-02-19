@@ -468,6 +468,10 @@ export default function EquipamentosPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setShowExportModal(true)}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Exportar
+                    </Button>
                     {permissions?.canEditEquipment && (
                         <>
                             <Button variant="outline" onClick={() => setShowImportModal(true)}>

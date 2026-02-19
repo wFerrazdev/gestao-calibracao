@@ -26,8 +26,14 @@ export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos
         let fileName = 'modelo_importacao.xlsx';
 
         if (context === 'estoque') {
-            headers = ['Código', 'Nome', 'Localização'];
-            exampleRow = ['EQ-001', 'Paquímetro Digital', 'Armário A, Prateleira 2'];
+            headers = [
+                'Código', 'Nome', 'Tipo', 'Localização', 'Modelo', 'Resolução',
+                'Capacidade', 'Responsável', 'Faixa de Trabalho', 'Unidade de Medida'
+            ];
+            exampleRow = [
+                'EQ-001', 'Paquímetro Digital', 'Dimensional', 'Armário A, Prateleira 2', 'Mitutoyo 500-196-30', '0.01 mm',
+                '150 mm', 'João Silva', '0-150mm', 'mm'
+            ];
             fileName = 'modelo_importacao_estoque.xlsx';
         } else {
             headers = [
