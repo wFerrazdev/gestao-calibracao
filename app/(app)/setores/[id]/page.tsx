@@ -51,7 +51,7 @@ interface Equipment {
     manufacturerModel: string | null;
     resolution: string | null;
     capacity: string | null;
-    status: 'CALIBRADO' | 'IRA_VENCER' | 'VENCIDO' | 'DESATIVADO';
+    status: 'CALIBRADO' | 'IRA_VENCER' | 'VENCIDO' | 'DESATIVADO' | 'REFERENCIA';
     dueDate: string | null;
     lastCalibrationDate: string | null;
     lastCertificateNumber: string | null;
@@ -159,6 +159,7 @@ export default function SectorDetailsPage() {
             case 'IRA_VENCER': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
             case 'VENCIDO': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
             case 'DESATIVADO': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
+            case 'REFERENCIA': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -169,6 +170,7 @@ export default function SectorDetailsPage() {
             case 'IRA_VENCER': return 'Irá Vencer';
             case 'VENCIDO': return 'Vencido';
             case 'DESATIVADO': return 'Desativado';
+            case 'REFERENCIA': return 'Referência';
             default: return status;
         }
     };
@@ -224,6 +226,7 @@ export default function SectorDetailsPage() {
                             <SelectItem value="IRA_VENCER">Irá Vencer</SelectItem>
                             <SelectItem value="VENCIDO">Vencido</SelectItem>
                             <SelectItem value="DESATIVADO">Desativado</SelectItem>
+                            <SelectItem value="REFERENCIA">Referência</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

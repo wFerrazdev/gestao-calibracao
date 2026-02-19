@@ -139,7 +139,7 @@ export async function POST(request: Request) {
 
         // Calcular status e vencimento se houver última calibração
         let dueDate = null;
-        let status: 'CALIBRADO' | 'IRA_VENCER' | 'VENCIDO' | 'DESATIVADO' = 'VENCIDO';
+        let status: 'CALIBRADO' | 'IRA_VENCER' | 'VENCIDO' | 'DESATIVADO' | 'REFERENCIA' = 'VENCIDO';
 
         if (body.lastCalibrationDate && calibrationRule) {
             const result = calculateEquipmentStatus(
