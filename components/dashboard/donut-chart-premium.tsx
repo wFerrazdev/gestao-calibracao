@@ -24,6 +24,7 @@ export function DonutChartPremium({ data }: DonutChartProps) {
         typeName: item.name
     }));
 
+
     if (total === 0) {
         return (
             <ChartCardPremium title="Distribuição por Tipo" icon={PieChartIcon} iconColor="text-cyan-500 dark:text-cyan-400">
@@ -39,39 +40,45 @@ export function DonutChartPremium({ data }: DonutChartProps) {
             <div className="flex-1 w-full flex flex-col justify-center min-h-0 relative">
                 {/* Graph Wrapper with explicit height to prevent disappearance */}
                 <div className="flex-1 w-full min-h-[240px] relative">
-                    {/* Glow Effect - positioned behind the chart */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-cyan-500/10 blur-3xl rounded-full pointer-events-none" />
+                    {/* Glow Effect - positioned behind the chart (z-0) */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-cyan-500/10 blur-3xl rounded-full pointer-events-none z-0" />
 
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Tooltip
-                                content={<PremiumTooltip />}
-                                cursor={false}
-                            />
-                            <Pie
-                                data={formattedData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={75}
-                                outerRadius={100}
-                                paddingAngle={2}
-                                dataKey="value"
-                                cornerRadius={6}
-                                stroke="none"
-                            >
-                                {formattedData.map((entry, index) => (
-                                    <Cell
-                                        key={`cell-${index}`}
-                                        fill={entry.fill}
-                                        className="stroke-background dark:stroke-[#1e2330] stroke-2 outline-none transition-all duration-300 hover:opacity-80"
-                                    />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ResponsiveContainer>
+                    {/* Chart Container (z-10) */}
+                    <div className="absolute inset-0 z-10">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Tooltip
+                                    content={<PremiumTooltip />}
+                                    cursor={false}
+                                />
+                                <Pie
+                                    data={formattedData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={85}
+                                    paddingAngle={3}
+                                    dataKey="value"
+                                    nameKey="typeName"
+                                    cornerRadius={8}
+                                    stroke="rgba(0,0,0,0.1)"
+                                    strokeWidth={1}
+                                    isAnimationActive={false} // Debugging/Stability
+                                >
+                                    {formattedData.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={entry.fill}
+                                            className="outline-none transition-all duration-300 hover:opacity-80"
+                                        />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
 
-                    {/* Center Text Wrapper - Guaranteed central alignment */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                    {/* Center Text Wrapper - Guaranteed central alignment (z-20) */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
                         <span className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter leading-none">
                             {total}
                         </span>
