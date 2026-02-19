@@ -164,12 +164,19 @@ export async function GET(request: Request) {
 
                 const score = total > 0 ? Math.round((calibrated / total) * 100) : 0;
 
+                // Contagem total de itens para decidir se o setor deve aparecer no Dashboard
+                // Mostra o setor se ele tiver QUALQUER equipamento (mesmo que seja REFERENCIA ou IN_STOCK)
+                const hasEquipment = await prisma.equipment.count({
+                    where: { sectorId: sector.id }
+                }) > 0;
+
                 return {
                     id: sector.id,
                     sectorName: sector.name,
                     total,
                     calibrated,
                     score,
+                    hasEquipment
                 };
             }),
             // Item "Estoque" (todos os equipamentos com usageStatus IN_STOCK)
@@ -197,16 +204,18 @@ export async function GET(request: Request) {
                     total,
                     calibrated,
                     score,
+                    hasEquipment: true // Estoque sempre aparece se houver dados consolidados
                 };
             })()
         ]);
 
-        // Consolidar por NOME para evitar duplicidade (ex: Setor "Estoque" físico + Bucket "Estoque" nulo)
+        // Consolidar por NOME para evitar duplicidade
         const consolidatedHealth: Record<string, any> = {};
         allSectorHealth.forEach(item => {
             if (consolidatedHealth[item.sectorName]) {
                 consolidatedHealth[item.sectorName].total += item.total;
                 consolidatedHealth[item.sectorName].calibrated += item.calibrated;
+                consolidatedHealth[item.sectorName].hasEquipment = consolidatedHealth[item.sectorName].hasEquipment || item.hasEquipment;
                 consolidatedHealth[item.sectorName].score = consolidatedHealth[item.sectorName].total > 0
                     ? Math.round((consolidatedHealth[item.sectorName].calibrated / consolidatedHealth[item.sectorName].total) * 100)
                     : 0;
@@ -215,7 +224,7 @@ export async function GET(request: Request) {
             }
         });
 
-        const filteredSectorHealth = Object.values(consolidatedHealth).filter(s => s.total > 0 || s.calibrated > 0 || s.sectorName === 'Estoque');
+        const filteredSectorHealth = Object.values(consolidatedHealth).filter(s => s.hasEquipment || s.sectorName === 'Estoque');
 
         // --- NOVAS METRICAS DE QUALIDADE ---
 

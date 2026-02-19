@@ -3,7 +3,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ChartCardPremiumProps {
     title: string;
@@ -52,16 +51,13 @@ export function ChartCardPremium({
                     )}
                 </div>
 
-                {/* Content Container */}
-                {scrollable ? (
-                    <ScrollArea className="flex-1 w-full min-h-0 pr-2">
-                        {children}
-                    </ScrollArea>
-                ) : (
-                    <div className="flex-1 w-full min-h-0 relative overflow-hidden">
-                        {children}
-                    </div>
-                )}
+                {/* Content Container - flex-1 min-h-0 essencial para altura fixa e scroll interno */}
+                <div className={cn(
+                    "flex-1 w-full min-h-0 relative",
+                    scrollable ? "overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent hover:scrollbar-thumb-slate-300 dark:hover:scrollbar-thumb-slate-600" : "overflow-hidden"
+                )}>
+                    {children}
+                </div>
             </div>
         </div>
     );

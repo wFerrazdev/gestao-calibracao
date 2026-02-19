@@ -235,7 +235,6 @@ export default function DashboardPage() {
                     title="Saúde dos Setores"
                     icon={Heart}
                     iconColor="text-pink-500 dark:text-pink-400"
-                    height="h-[420px]"
                     scrollable
                 >
                     <div className="space-y-4">
