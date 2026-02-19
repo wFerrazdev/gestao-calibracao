@@ -112,7 +112,7 @@ export async function GET(request: Request) {
 
         calibrationRecords.forEach(record => {
             const monthKey = format(record.calibrationDate, 'yyyy-MM');
-            if (calibrationsByMonth.hasOwnProperty(monthKey)) {
+            if (Object.prototype.hasOwnProperty.call(calibrationsByMonth, monthKey)) {
                 calibrationsByMonth[monthKey]++;
             }
         });
@@ -146,10 +146,10 @@ export async function GET(request: Request) {
         const allSectorHealth = await Promise.all([
             // Setores normais - Apenas equipamentos EM USO e que não sejam REFERENCIA/DESATIVADO
             ...sectors.map(async sector => {
-                const queryConditions = {
+                const queryConditions: Prisma.EquipmentWhereInput = {
                     sectorId: sector.id,
-                    usageStatus: 'IN_USE' as const,
-                    status: { notIn: ['REFERENCIA', 'DESATIVADO'] as any }
+                    usageStatus: 'IN_USE',
+                    status: { notIn: ['REFERENCIA', 'DESATIVADO'] }
                 };
 
                 const total = await prisma.equipment.count({
@@ -166,9 +166,9 @@ export async function GET(request: Request) {
 
                 // Contagem total de itens para decidir se o setor deve aparecer no Dashboard
                 // Mostra o setor se ele tiver QUALQUER equipamento (mesmo que seja REFERENCIA ou IN_STOCK)
-                const hasEquipment = await prisma.equipment.count({
+                const hasEquipmentCount = await prisma.equipment.count({
                     where: { sectorId: sector.id }
-                }) > 0;
+                });
 
                 return {
                     id: sector.id,
@@ -176,14 +176,14 @@ export async function GET(request: Request) {
                     total,
                     calibrated,
                     score,
-                    hasEquipment
+                    hasEquipment: hasEquipmentCount > 0
                 };
             }),
             // Item "Estoque" (todos os equipamentos com usageStatus IN_STOCK)
             (async () => {
-                const queryConditions = {
-                    usageStatus: 'IN_STOCK' as const,
-                    status: { notIn: ['REFERENCIA', 'DESATIVADO'] as any }
+                const queryConditions: Prisma.EquipmentWhereInput = {
+                    usageStatus: 'IN_STOCK',
+                    status: { notIn: ['REFERENCIA', 'DESATIVADO'] }
                 };
 
                 const total = await prisma.equipment.count({

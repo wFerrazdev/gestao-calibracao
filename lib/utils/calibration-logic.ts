@@ -1,41 +1,34 @@
 /**
- * Lógica de aprovação de calibração:
- * REPROVADO quando erro > incerteza
- * APROVADO quando erro <= incerteza
- * 
- * Se os valores estiverem ausentes, o status padrão é APPROVED 
- * (desde que não haja dados que provem o contrário).
+ * Converte um valor de calibração (string, number ou null) para um número válido.
+ * Lida com strings contendo vírgulas (padrão brasileiro).
  */
-
-export type CalibrationStatus = 'APPROVED' | 'REJECTED';
-
 export function parseCalibrationValue(value: string | number | null | undefined): number | null {
     if (value === null || value === undefined || value === '') return null;
     if (typeof value === 'number') return value;
 
     // Converte vírgula para ponto e remove espaços
-    const cleanValue = value.toString().replace(',', '.').trim();
-    const parsed = parseFloat(cleanValue);
+    const sanitized = value.replace(',', '.').trim();
+    const parsed = parseFloat(sanitized);
 
     return isNaN(parsed) ? null : parsed;
 }
 
+/**
+ * Determina o status da calibração com base na regra:
+ * REPROVADO se erro > incerteza
+ * APROVADO se erro <= incerteza
+ * Se um dos dois for nulo, retorna null (neutro)
+ */
 export function getCalibrationResult(
     error: string | number | null | undefined,
     uncertainty: string | number | null | undefined
-): CalibrationStatus {
+): 'APPROVED' | 'REJECTED' | null {
     const errorVal = parseCalibrationValue(error);
     const uncertaintyVal = parseCalibrationValue(uncertainty);
 
-    // Se um dos valores não existir, não podemos aplicar a regra de reprovação
     if (errorVal === null || uncertaintyVal === null) {
-        return 'APPROVED';
+        return null;
     }
 
-    // Regra: REPROVADO quando erro > incerteza
-    if (errorVal > uncertaintyVal) {
-        return 'REJECTED';
-    }
-
-    return 'APPROVED';
+    return errorVal > uncertaintyVal ? 'REJECTED' : 'APPROVED';
 }

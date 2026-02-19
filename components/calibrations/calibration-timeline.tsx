@@ -2,7 +2,8 @@
 
 import { CalibrationTimelineItem } from './calibration-timeline-item';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PlusCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Calibration {
     id: string;
@@ -10,66 +11,85 @@ interface Calibration {
     certificateNumber: string | null;
     performedBy: string | null;
     notes: string | null;
+    attachmentUrl: string | null;
     attachmentKey: string | null;
+    createdAt: string;
     error: number | null;
     uncertainty: number | null;
-    status: 'APPROVED' | 'REJECTED';
+    status: 'APPROVED' | 'REJECTED' | null;
 }
 
 interface CalibrationTimelineProps {
     calibrations: Calibration[];
-    hasMore: boolean;
-    onLoadMore: () => void;
-    isLoadingMore: boolean;
-    onDownload: (key: string, certNumber: string | null) => void;
     onDelete: (id: string) => void;
-    canDelete: boolean;
+    isCreator: boolean;
+    hasMore?: boolean;
+    onLoadMore?: () => void;
+    loadingMore?: boolean;
 }
 
 export function CalibrationTimeline({
     calibrations,
-    hasMore,
-    onLoadMore,
-    isLoadingMore,
-    onDownload,
     onDelete,
-    canDelete
+    isCreator,
+    hasMore = false,
+    onLoadMore,
+    loadingMore = false
 }: CalibrationTimelineProps) {
-    return (
-        <div className="space-y-2">
-            <div className="relative">
-                {calibrations.map((cal, index) => {
-                    // Opacidade progressiva para itens antigos (100, 90, 80...) até o mínimo de 60
-                    const opacity = Math.max(60, 100 - (index * 5));
+    if (!calibrations || calibrations.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 px-4 text-center space-y-4">
+                <div className="h-16 w-16 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center border border-dashed border-gray-200 dark:border-gray-800">
+                    <PlusCircle className="h-8 w-8 text-gray-300 dark:text-gray-700" />
+                </div>
+                <div className="space-y-1">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Nenhum histórico encontrado</h3>
+                    <p className="text-sm text-gray-500 max-w-xs">
+                        Este equipamento ainda não possui calibrações registradas no sistema.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
-                    return (
-                        <CalibrationTimelineItem
-                            key={cal.id}
-                            calibration={cal}
-                            isLast={index === calibrations.length - 1 && !hasMore}
-                            onDownload={onDownload}
-                            onDelete={onDelete}
-                            canDelete={canDelete}
-                            opacity={opacity}
-                        />
-                    );
-                })}
+    return (
+        <div className="relative">
+            {/* Linha vertical da timeline */}
+            <div className="absolute left-[-30px] top-6 bottom-0 w-[2px] bg-gradient-to-b from-gray-200 via-gray-100 to-transparent dark:from-gray-800 dark:via-gray-900 dark:to-transparent" />
+
+            <div className="space-y-0">
+                {calibrations.map((calibration, index) => (
+                    <CalibrationTimelineItem
+                        key={calibration.id}
+                        calibration={calibration}
+                        onDelete={onDelete}
+                        isCreator={isCreator}
+                        index={index}
+                    />
+                ))}
             </div>
 
             {hasMore && (
-                <div className="pt-4 pb-12">
+                <div className="mt-8 flex justify-center pb-10">
                     <Button
-                        variant="ghost"
-                        className="w-full h-16 border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/50 rounded-xl transition-all group"
+                        variant="outline"
                         onClick={onLoadMore}
-                        disabled={isLoadingMore}
+                        disabled={loadingMore}
+                        className={cn(
+                            "w-full max-w-md h-12 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary hover:text-primary transition-all rounded-xl gap-2",
+                            loadingMore && "bg-gray-50 dark:bg-gray-800"
+                        )}
                     >
-                        {isLoadingMore ? (
-                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        {loadingMore ? (
+                            <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Carregando...
+                            </>
                         ) : (
-                            <span className="text-muted-foreground group-hover:text-foreground font-medium">
-                                Carregar mais histórico
-                            </span>
+                            <>
+                                <PlusCircle className="h-4 w-4" />
+                                Carregando mais histórico
+                            </>
                         )}
                     </Button>
                 </div>

@@ -2,9 +2,23 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/get-current-user';
 import { prisma } from '@/lib/db';
 import { calculateEquipmentStatus } from '@/lib/equipment/calculate-status';
-import { EquipmentStatus } from '@prisma/client';
+import { EquipmentStatus, CalibrationStatus, Prisma } from '@prisma/client';
 import { createAuditLog } from '@/lib/audit';
 import { getCalibrationResult, parseCalibrationValue } from '@/lib/utils/calibration-logic';
+
+interface CreateCalibrationBody {
+    calibrationDate: string;
+    certificateNumber?: string;
+    performedBy?: string;
+    notes?: string;
+    error?: string | number;
+    uncertainty?: string | number;
+    attachmentKey?: string;
+    attachmentUrl?: string;
+    attachmentName?: string;
+    attachmentMime?: string;
+    attachmentSize?: number;
+}
 
 export async function GET(
     request: Request,
@@ -60,19 +74,21 @@ export async function GET(
                 take: limit,
             }),
             prisma.calibrationRecord.count({
-                where: { equipmentId: id }
+                where: { equipmentId: id },
             })
         ]);
 
         return NextResponse.json({
             calibrations,
             total,
-            hasMore: skip + calibrations.length < total
+            hasMore: total > skip + calibrations.length,
+            page,
+            limit
         });
     } catch (error: any) {
-        console.error('Error fetching calibrations:', error);
+        console.error('Erro na API de calibrações:', error);
         return NextResponse.json(
-            { error: error.message || 'Erro ao buscar calibrações' },
+            { error: 'Erro interno do servidor' },
             { status: 500 }
         );
     }
@@ -85,19 +101,10 @@ export async function POST(
     try {
         const { id } = await params;
         const user = await getCurrentUser();
+        const body: CreateCalibrationBody = await request.json();
 
-        // Apenas QUALIDADE, ADMIN e CRIADOR podem adicionar calibração
-        if (!['QUALIDADE', 'ADMIN', 'CRIADOR'].includes(user.role)) {
-            return NextResponse.json(
-                { error: 'Permissão insuficiente' },
-                { status: 403 }
-            );
-        }
-
-        const body = await request.json() as any;
-
-        // Verificar se equipamento existe
-        const equipment: any = await prisma.equipment.findUnique({
+        // Pegar equipamento e sua regra
+        const equipment = await prisma.equipment.findUnique({
             where: { id },
             include: {
                 EquipmentType: {
@@ -109,88 +116,68 @@ export async function POST(
         });
 
         if (!equipment) {
-            return NextResponse.json(
-                { error: 'Equipamento não encontrado' },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'Equipamento não encontrado' }, { status: 404 });
         }
 
-        // Lógica de Aprovação/Reprovação (Nova Regra: erro > incerteza)
-        const calibrationStatus = getCalibrationResult(body.error, body.uncertainty);
+        // Nova Lógica de Aprovação/Reprovação: Erro > Incerteza
+        const calibrationStatus: CalibrationStatus = getCalibrationResult(body.error, body.uncertainty) || 'APPROVED';
+
+        // Parsing dos valores numericamente
         const errorVal = parseCalibrationValue(body.error);
         const uncertaintyVal = parseCalibrationValue(body.uncertainty);
 
-        // Criar calibração
         const calibration = await prisma.calibrationRecord.create({
             data: {
                 equipmentId: id,
+                createdByUserId: user.id,
                 calibrationDate: new Date(body.calibrationDate),
-                certificateNumber: body.certificateNumber,
+                certificateNumber: body.certificateNumber || '',
                 notes: body.notes,
+                error: errorVal,
+                uncertainty: uncertaintyVal,
+                status: calibrationStatus,
                 attachmentKey: body.attachmentKey,
                 attachmentUrl: body.attachmentUrl,
                 attachmentName: body.attachmentName,
                 attachmentMime: body.attachmentMime,
                 attachmentSize: body.attachmentSize,
-                createdByUserId: user.id,
-                error: errorVal,
-                uncertainty: uncertaintyVal,
-                status: calibrationStatus,
-            },
-            include: {
-                User: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
             },
         });
 
-        // Atualizar equipamento com última calibração e recalcular status
-        const calibrationDate = new Date(body.calibrationDate);
-        let dueDate = null;
-        let status: EquipmentStatus = 'VENCIDO';
-
-        if (equipment.EquipmentType.CalibrationRule) {
-            const result = calculateEquipmentStatus(
-                calibrationDate,
-                equipment.EquipmentType.CalibrationRule
-            );
-            dueDate = result.dueDate;
-            status = result.status;
-        }
+        // Calcular novo status do equipamento e próxima calibração
+        const newStatus = calculateEquipmentStatus(
+            new Date(body.calibrationDate),
+            equipment.EquipmentType.CalibrationRule
+        );
 
         await prisma.equipment.update({
             where: { id },
             data: {
-                lastCalibrationDate: calibrationDate,
+                lastCalibrationDate: new Date(body.calibrationDate),
                 lastCertificateNumber: body.certificateNumber,
-                dueDate,
-                status,
+                dueDate: newStatus.dueDate,
+                status: newStatus.status as EquipmentStatus,
             },
         });
 
-        // Criar audit log
+        // Log de Auditoria
         await createAuditLog({
             actorUserId: user.id,
-            entityType: 'CalibrationRecord',
-            entityId: calibration.id,
             action: 'CREATE',
+            entityType: 'CALIBRATION',
+            entityId: calibration.id,
             metadata: {
                 equipmentId: id,
                 certificateNumber: body.certificateNumber,
-                hasAttachment: !!body.attachmentKey,
-                status: calibrationStatus
-            },
+                calibrationStatus
+            }
         });
 
-        return NextResponse.json(calibration, { status: 201 });
+        return NextResponse.json(calibration);
     } catch (error: any) {
-        console.error('Error creating calibration:', error);
+        console.error('Erro ao criar calibração:', error);
         return NextResponse.json(
-            { error: error.message || 'Erro ao criar calibração' },
+            { error: 'Erro ao registrar calibração' },
             { status: 500 }
         );
     }
