@@ -19,7 +19,7 @@ export function useEffectsMode(): EffectsMode {
 
             if (reduceMotion) {
                 detectedMode = "static";
-            } else if (hardwareConcurrency <= 4 || deviceMemory <= 4) {
+            } else if (hardwareConcurrency < 4 || deviceMemory < 4) {
                 detectedMode = "lite";
             }
 
