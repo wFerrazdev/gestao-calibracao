@@ -220,74 +220,62 @@ export default function DashboardPage() {
 
             {/* Gráficos — Linha 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Gráfico de Barras: Quantidade por Status */}
-                {/* Gráfico de Barras Premium: Equipamentos por Status */}
-                <div className="h-full min-h-[460px]">
-                    <StatusChartPremium
-                        data={statusChartData}
-                        total={data?.totalEquipment || 0}
-                    />
-                </div>
-
-                {/* Gráfico de Barras: Distribuição por Tipo - Substituído por Donut Chart */}
-                {/* Donut Chart Premium */}
-                <div className="h-full min-h-[460px]">
-                    <DonutChartPremium data={typeChartData} />
-                </div>
+                <StatusChartPremium
+                    data={statusChartData}
+                    total={data?.totalEquipment || 0}
+                />
+                <DonutChartPremium data={typeChartData} />
             </div>
 
             {/* Gráficos — Linha 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Gráfico de Área: Calibrações por Mês */}
-                {/* Gráfico de Área Premium: Calibrações por Mês */}
-                <div className="h-[380px]">
-                    <TrendLinePremium data={monthChartData} />
-                </div>
+                <TrendLinePremium data={monthChartData} />
 
-                {/* Widget: Saúde dos Setores */}
-                {/* Widget: Saúde dos Setores */}
-                <div className="h-[380px]">
-                    <ChartCardPremium title="Saúde dos Setores" icon={Heart} iconColor="text-pink-500 dark:text-pink-400">
-                        <div className="space-y-4 pr-2 max-h-[290px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-slate-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-slate-600 relative z-10">
-                            {data?.sectorHealthScores?.map((sector) => (
-                                <div key={sector.sectorId} className="space-y-1.5 p-1 rounded-md hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="font-medium text-slate-700 dark:text-slate-300">{sector.sectorName}</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs text-slate-400 dark:text-slate-500">{sector.calibrated}/{sector.total}</span>
-                                            <span className={`font-bold tabular-nums ${sector.score >= 80
-                                                ? 'text-green-600 dark:text-green-400'
-                                                : sector.score >= 50
-                                                    ? 'text-yellow-600 dark:text-yellow-400'
-                                                    : 'text-red-600 dark:text-red-400'
-                                                }`}>
-                                                {sector.score}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden shadow-inner">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-1000 ease-out relative ${sector.score >= 80
-                                                ? 'bg-green-500'
-                                                : sector.score >= 50
-                                                    ? 'bg-yellow-500'
-                                                    : 'bg-red-500'
-                                                }`}
-                                            style={{ width: `${sector.score}%` }}
-                                        >
-                                            <div className="absolute inset-0 bg-white/20 blur-[1px]"></div>
-                                        </div>
+                <ChartCardPremium
+                    title="Saúde dos Setores"
+                    icon={Heart}
+                    iconColor="text-pink-500 dark:text-pink-400"
+                    scrollable
+                >
+                    <div className="space-y-4">
+                        {data?.sectorHealthScores?.map((sector) => (
+                            <div key={sector.sectorId} className="space-y-1.5 p-1 rounded-md hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">{sector.sectorName}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-slate-400 dark:text-slate-500">{sector.calibrated}/{sector.total}</span>
+                                        <span className={`font-bold tabular-nums ${sector.score >= 80
+                                            ? 'text-green-600 dark:text-green-400'
+                                            : sector.score >= 50
+                                                ? 'text-yellow-600 dark:text-yellow-400'
+                                                : 'text-red-600 dark:text-red-400'
+                                            }`}>
+                                            {sector.score}%
+                                        </span>
                                     </div>
                                 </div>
-                            ))}
-                            {(!data?.sectorHealthScores || data.sectorHealthScores.length === 0) && (
-                                <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
-                                    Sem dados disponíveis
+                                <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden shadow-inner">
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-1000 ease-out relative ${sector.score >= 80
+                                            ? 'bg-green-500'
+                                            : sector.score >= 50
+                                                ? 'bg-yellow-500'
+                                                : 'bg-red-500'
+                                            }`}
+                                        style={{ width: `${sector.score}%` }}
+                                    >
+                                        <div className="absolute inset-0 bg-white/20 blur-[1px]"></div>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </ChartCardPremium>
-                </div>
+                            </div>
+                        ))}
+                        {(!data?.sectorHealthScores || data.sectorHealthScores.length === 0) && (
+                            <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
+                                Sem dados disponíveis
+                            </div>
+                        )}
+                    </div>
+                </ChartCardPremium>
             </div>
 
 

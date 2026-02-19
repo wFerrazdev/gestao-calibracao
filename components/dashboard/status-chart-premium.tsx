@@ -104,7 +104,7 @@ export function StatusChartPremium({ data }: StatusChartProps) {
             icon={Activity}
             iconColor="text-blue-500 dark:text-blue-400"
         >
-            <div ref={containerRef} className="relative h-full min-h-[280px] w-full mt-auto flex flex-col">
+            <div ref={containerRef} className="relative h-full w-full flex flex-col">
                 <div className="relative flex-1 w-full">
                     {/* Grid Lines (Y-Axis) */}
                     <div className="absolute inset-0 flex flex-col justify-between pointer-events-none text-xs text-slate-400 dark:text-slate-500 font-medium z-0 pb-6 pr-2">

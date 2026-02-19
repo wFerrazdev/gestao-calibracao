@@ -36,9 +36,8 @@ export function DonutChartPremium({ data }: DonutChartProps) {
 
     return (
         <ChartCardPremium title="Distribuição por Tipo" icon={PieChartIcon} iconColor="text-cyan-500 dark:text-cyan-400">
-            <div className="flex-1 w-full flex flex-col items-center justify-center p-4 gap-6">
-
-                <div className="relative w-full h-[260px] flex items-center justify-center">
+            <div className="flex-1 w-full flex flex-col items-center justify-center p-4">
+                <div className="relative w-full h-full min-h-[280px] flex items-center justify-center">
                     {/* Glow Effect - positioned behind the chart */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-cyan-500/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -52,8 +51,8 @@ export function DonutChartPremium({ data }: DonutChartProps) {
                                 data={formattedData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={70} // Thicker donut
-                                outerRadius={95}
+                                innerRadius={80} // Slightly thicker
+                                outerRadius={110} // Slightly larger
                                 paddingAngle={2}
                                 dataKey="value"
                                 cornerRadius={6}
@@ -72,35 +71,13 @@ export function DonutChartPremium({ data }: DonutChartProps) {
 
                     {/* Center Text */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-10">
-                        <span className="text-3xl font-bold text-slate-900 dark:text-white tracking-tighter">
+                        <span className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">
                             {total}
                         </span>
-                        <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                        <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
                             Total
                         </span>
                     </div>
-                </div>
-
-                {/* Custom Legend */}
-                <div className="w-full max-w-[340px] space-y-2">
-                    {formattedData.map((item, index) => {
-                        const percent = ((item.value / total) * 100).toFixed(0);
-                        return (
-                            <div key={index} className="grid grid-cols-[auto_1fr_auto] gap-3 items-center text-sm group p-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-default">
-                                <div
-                                    className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor] opacity-80 group-hover:opacity-100 transition-all"
-                                    style={{ backgroundColor: item.fill, color: item.fill }}
-                                />
-                                <span className="text-slate-600 dark:text-slate-400 truncate font-medium group-hover:text-slate-900 dark:group-hover:text-white transition-colors" title={item.typeName}>
-                                    {item.typeName}
-                                </span>
-                                <div className="flex items-baseline gap-1.5 tabular-nums">
-                                    <span className="font-bold text-slate-900 dark:text-white">{item.value}</span>
-                                    <span className="text-xs font-medium text-slate-400 dark:text-slate-500 opacity-70">({percent}%)</span>
-                                </div>
-                            </div>
-                        );
-                    })}
                 </div>
             </div>
         </ChartCardPremium>
