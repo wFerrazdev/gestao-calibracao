@@ -108,21 +108,28 @@ export const BackgroundBeams = React.memo(
             ></motion.path>
           ))}
           <defs>
-            {paths.map((path, index) => (
+            {paths.map((_, index) => (
               <motion.linearGradient
                 id={`linearGradient-${index}`}
                 key={`gradient-${index}`}
-                x1="0%"
-                x2="0%"
-                y1="0%"
-                y2="0%"
+                initial={isStatic ? {
+                  x1: "30%",
+                  x2: "60%",
+                  y1: "40%",
+                  y2: "70%",
+                } : {
+                  x1: "0%",
+                  x2: "0%",
+                  y1: "0%",
+                  y2: "0%",
+                }}
                 animate={!isStatic ? {
                   x1: ["0%", "100%"],
                   x2: ["0%", "95%"],
                   y1: ["0%", "100%"],
                   y2: ["0%", `${93 + Math.random() * 8}%`],
                 } : {
-                  // Static but visible coordinates (center-ish)
+                  // Maintain static values in animate so they don't get 'undefined' if motion is active
                   x1: "30%",
                   x2: "60%",
                   y1: "40%",
@@ -133,7 +140,7 @@ export const BackgroundBeams = React.memo(
                   ease: "easeInOut",
                   repeat: Infinity,
                   delay: isLite ? 0 : Math.random() * 10,
-                } : {}}
+                } : undefined}
               >
                 <stop stopColor="var(--beam-1)" stopOpacity="0"></stop>
                 <stop stopColor="var(--beam-1)"></stop>
