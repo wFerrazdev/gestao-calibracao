@@ -138,7 +138,7 @@ export function EquipmentModal({ sectors, types, onClose, onSuccess, mode = 'cre
             }
 
             const url = mode === 'edit' ? `/api/equipment/${equipmentToEdit.id}` : '/api/equipment';
-            const method = mode === 'edit' ? 'PUT' : 'POST'; // or PATCH
+            const method = mode === 'edit' ? 'PATCH' : 'POST';
 
             const res = await fetch(url, {
                 method: method,
