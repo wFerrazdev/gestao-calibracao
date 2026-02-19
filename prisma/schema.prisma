@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  actorUserId String
+  entityType  String
+  entityId    String
+  action      AuditAction
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  User        User        @relation(fields: [actorUserId], references: [id])
+
+  @@index([action])
+  @@index([actorUserId])
+  @@index([createdAt(sort: Desc)])
+  @@index([entityType])
+}
+
+model CalibrationRecord {
+  id                String    @id @default(cuid())
+  equipmentId       String
+  calibrationDate   DateTime
+  certificateNumber String
+  notes             String?
+  attachmentKey     String?
+  attachmentUrl     String?
+  attachmentName    String?
+  attachmentMime    String?
+  attachmentSize    Int?
+  createdByUserId   String
+  uncertainty       Float?
+  error             Float?
+  status            CalibrationStatus @default(APPROVED)
+  createdAt         DateTime  @default(now())
+  User              User      @relation(fields: [createdByUserId], references: [id])
+  Equipment         Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([calibrationDate(sort: Desc)])
+  @@index([createdByUserId])
+  @@index([equipmentId])
+}
+
+model AcceptanceCriteria {
+  id              String        @id @default(cuid())
+  equipmentTypeId String
+  rangeMin        Float?
+  rangeMax        Float?
+  maxError        Float?
+  maxUncertainty  Float?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  EquipmentType   EquipmentType @relation(fields: [equipmentTypeId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentTypeId])
+}
+
+enum CalibrationStatus {
+  APPROVED
+  REJECTED
+}
+
+model CalibrationRule {
+  id              String        @id @default(cuid())
+  equipmentTypeId String        @unique
+  intervalMonths  Int
+  warnDays        Int           @default(30)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  EquipmentType   EquipmentType @relation(fields: [equipmentTypeId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentTypeId])
+}
+
+model Equipment {
+  id                    String              @id @default(cuid())
+  name                  String
+  code                  String              @unique
+  manufacturerModel     String?
+  resolution            String?
+  capacity              String?
+  responsible           String?
+  workingRange          String?             // Faixa de Trabalho
+  admissibleUncertainty String?             // Incerteza Admissível
+  maxError              String?             // Erro Máximo
+  provider              String?             // Fornecedor/Laboratório
+  unit                  String?             // Unidade de Medida
+  location              String?             // Localização/Endereçamento
+  notes                 String?
+  sectorId              String?
+  equipmentTypeId       String
+  lastCalibrationDate   DateTime?
+  lastCertificateNumber String?
+  dueDate               DateTime?
+  status                EquipmentStatus     @default(VENCIDO)
+  usageStatus           UsageStatus         @default(IN_USE)
+  imageUrl              String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  CalibrationRecord     CalibrationRecord[]
+  ServiceOrder          ServiceOrder[]
+  EquipmentType         EquipmentType       @relation(fields: [equipmentTypeId], references: [id])
+  Sector                Sector?             @relation(fields: [sectorId], references: [id])
+
+  @@index([code])
+  @@index([dueDate])
+  @@index([equipmentTypeId])
+  @@index([sectorId])
+  @@index([status])
+}
+
+model ServiceOrder {
+  id            String        @id @default(cuid())
+  equipmentId   String
+  scheduledDate DateTime
+  description   String?
+  status        ServiceStatus @default(SCHEDULED)
+  technician    String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  Equipment     Equipment     @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([supplierId])
+
+  supplierId    String?
+  Supplier      Supplier?     @relation(fields: [supplierId], references: [id])
+  
+  quoteRequestId String?
+  QuoteRequest   QuoteRequest? @relation(fields: [quoteRequestId], references: [id])
+
+  @@index([quoteRequestId])
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ServiceOrder ServiceOrder[]
+  QuoteRequest QuoteRequest[]
+}
+
+model EquipmentType {
+  id              String           @id @default(cuid())
+  name            String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  CalibrationRule    CalibrationRule?
+  AcceptanceCriteria AcceptanceCriteria[]
+  Equipment          Equipment[]
+}
+
+model Sector {
+  id          String      @id @default(cuid())
+  name        String
+  code        String?     @unique
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Equipment   Equipment[]
+  User        User[]
+}
+
+model User {
+  id                String              @id @default(cuid())
+  firebaseUid       String              @unique
+  email             String              @unique
+  name              String
+  photoUrl          String?
+  age               Int?
+  role              UserRole
+  status            UserStatus          @default(PENDING)
+  sectorId          String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  AuditLog          AuditLog[]
+  CalibrationRecord CalibrationRecord[]
+  Sector            Sector?             @relation(fields: [sectorId], references: [id])
+
+  @@index([email])
+  @@index([firebaseUid])
+  @@index([role])
+  @@index([sectorId])
+  @@index([status])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+  ACTIVATE
+  DEACTIVATE
+  UPLOAD
+  DOWNLOAD
+}
+
+enum ServiceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  WAITING_QUOTE
+  WAITING_PAYMENT
+  COMPLETED
+  CANCELLED
+}
+
+enum EquipmentStatus {
+  CALIBRADO
+  IRA_VENCER
+  VENCIDO
+  DESATIVADO
+  REFERENCIA
+}
+
+enum UserRole {
+  CRIADOR
+  ADMIN
+  QUALIDADE
+  PRODUCAO
+  VIEWER
+}
+
+
+enum UsageStatus {
+  IN_USE
+  IN_STOCK
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
+enum QuoteRequestStatus {
+  OPEN
+  SENT
+  CLOSED
+}
+
+model QuoteRequest {
+  id           String             @id @default(cuid())
+  supplierId   String
+  status       QuoteRequestStatus @default(OPEN)
+  emailSubject String?
+  emailBody    String?
+  emailCc      String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  Supplier     Supplier           @relation(fields: [supplierId], references: [id])
+  ServiceOrder ServiceOrder[]
+
+  @@index([supplierId])
+  @@index([status])
+}

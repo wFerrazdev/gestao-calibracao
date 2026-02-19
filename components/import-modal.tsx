@@ -1,0 +1,189 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { toast } from 'sonner';
+import * as XLSX from 'xlsx';
+
+interface ImportModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onImport: (data: any[]) => Promise<void>;
+}
+
+export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
+    const [isImporting, setIsImporting] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
+    const [previewData, setPreviewData] = useState<any[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleDownloadTemplate = () => {
+        const headers = [
+            'Código', 'Nome', 'Tipo', 'Setor', 'Modelo', 'Resolução',
+            'Capacidade', 'Responsável', 'Data Última Calibração', 'Data Vencimento',
+            'Faixa de Trabalho', 'Incerteza Admissível', 'Erro Máximo', 'Fornecedor', 'Unidade de Medida', 'Localização'
+        ];
+        // Exemplo de dados para ajudar o usuário
+        const exampleRow = [
+            'EQ-001', 'Paquímetro Digital', 'Dimensional', 'Produção', 'Mitutoyo 500-196-30', '0.01 mm',
+            '150 mm', 'João Silva', '2023-01-15', '2024-01-15',
+            '0-150mm', '0.02mm', '0.02mm', 'Lab Calibração XYZ', 'mm', 'Armário A, Prateleira 2'
+        ];
+
+        const worksheet = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Modelo Importação');
+        XLSX.writeFile(workbook, 'modelo_importacao_equipamentos.xlsx');
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (!selectedFile) return;
+
+        setFile(selectedFile);
+
+        // Ler o arquivo para preview
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const bstr = evt.target?.result;
+                const wb = XLSX.read(bstr, { type: 'binary' });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws);
+                setPreviewData(data);
+                if (data.length === 0) {
+                    toast.warning('O arquivo parece estar vazio.');
+                } else {
+                    toast.success(`${data.length} registros encontrados.`);
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('Erro ao ler o arquivo. Verifique se é um Excel válido.');
+                setFile(null);
+                setPreviewData([]);
+            }
+        };
+        reader.readAsBinaryString(selectedFile);
+    };
+
+    const handleImport = async () => {
+        if (!previewData.length) return;
+        setIsImporting(true);
+        try {
+            await onImport(previewData);
+            onClose();
+            setFile(null);
+            setPreviewData([]);
+        } catch (error) {
+            console.error(error);
+            // O erro já deve ser tratado pelo onImport ou toast lá
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
+    const clearFile = () => {
+        setFile(null);
+        setPreviewData([]);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => !isImporting && onClose()}>
+            <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                    <DialogTitle>Importar Equipamentos</DialogTitle>
+                    <DialogDescription>
+                        Faça upload de uma planilha Excel para importar equipamentos em massa.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="grid gap-6 py-4">
+                    {/* Passo 1: Baixar Modelo */}
+                    <div className="rounded-lg border p-4 bg-muted/20">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h4 className="text-sm font-medium">1. Baixe o modelo</h4>
+                                <p className="text-xs text-muted-foreground">
+                                    Use nossa planilha padrão para garantir que os dados sejam importados corretamente.
+                                </p>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+                                <Download className="mr-2 h-4 w-4" />
+                                Baixar Modelo
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Passo 2: Upload */}
+                    <div className="space-y-2">
+                        <h4 className="text-sm font-medium">2. Selecione o arquivo preenchido</h4>
+                        {!file ? (
+                            <div
+                                className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <FileSpreadsheet className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                                <p className="text-sm text-muted-foreground font-medium">
+                                    Clique para selecionar ou arraste o arquivo aqui
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Suporta arquivos .xlsx ou .xls
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between border rounded-lg p-3 bg-muted/30">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-green-100 p-2 rounded-full dark:bg-green-900/20">
+                                        <FileSpreadsheet className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium truncate max-w-[250px]">{file.name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {previewData.length} registros identificados
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={clearFile}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileChange}
+                        />
+                    </div>
+
+                    {/* Alertas */}
+                    {previewData.length > 0 && (
+                        <div className="rounded-md bg-blue-50 p-3 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 flex gap-2 items-start">
+                            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                            <div>
+                                <p className="font-medium">Informações Importantes:</p>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>Novos <strong>Setores</strong> e <strong>Tipos</strong> serão criados automaticamente.</li>
+                                    <li>Equipamentos com <strong>Código</strong> já existente serão ignorados (não duplicam).</li>
+                                    <li>Datas devem estar no formato <code>AAAA-MM-DD</code> ou serem células de data do Excel.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <DialogFooter>
+                    <Button variant="outline" onClick={onClose} disabled={isImporting}>Cancelar</Button>
+                    <Button onClick={handleImport} disabled={!file || isImporting || previewData.length === 0}>
+                        {isImporting ? 'Importando...' : 'Confirmar Importação'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}

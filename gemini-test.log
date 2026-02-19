@@ -1,0 +1,48 @@
+Fetching available models via REST API...
+
+Available Models:
+- models/gemini-2.5-flash (Gemini 2.5 Flash) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.5-pro (Gemini 2.5 Pro) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.0-flash (Gemini 2.0 Flash) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.0-flash-001 (Gemini 2.0 Flash 001) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.0-flash-exp-image-generation (Gemini 2.0 Flash (Image Generation) Experimental) | Methods: generateContent, countTokens, bidiGenerateContent
+- models/gemini-2.0-flash-lite-001 (Gemini 2.0 Flash-Lite 001) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.0-flash-lite (Gemini 2.0 Flash-Lite) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-exp-1206 (Gemini Experimental 1206) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.5-flash-preview-tts (Gemini 2.5 Flash Preview TTS) | Methods: countTokens, generateContent
+- models/gemini-2.5-pro-preview-tts (Gemini 2.5 Pro Preview TTS) | Methods: countTokens, generateContent, batchGenerateContent
+- models/gemma-3-1b-it (Gemma 3 1B) | Methods: generateContent, countTokens
+- models/gemma-3-4b-it (Gemma 3 4B) | Methods: generateContent, countTokens
+- models/gemma-3-12b-it (Gemma 3 12B) | Methods: generateContent, countTokens
+- models/gemma-3-27b-it (Gemma 3 27B) | Methods: generateContent, countTokens
+- models/gemma-3n-e4b-it (Gemma 3n E4B) | Methods: generateContent, countTokens
+- models/gemma-3n-e2b-it (Gemma 3n E2B) | Methods: generateContent, countTokens
+- models/gemini-flash-latest (Gemini Flash Latest) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-flash-lite-latest (Gemini Flash-Lite Latest) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-pro-latest (Gemini Pro Latest) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.5-flash-lite (Gemini 2.5 Flash-Lite) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.5-flash-image (Nano Banana) | Methods: generateContent, countTokens, batchGenerateContent
+- models/gemini-2.5-flash-preview-09-2025 (Gemini 2.5 Flash Preview Sep 2025) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-2.5-flash-lite-preview-09-2025 (Gemini 2.5 Flash-Lite Preview Sep 2025) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-3-pro-preview (Gemini 3 Pro Preview) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-3-flash-preview (Gemini 3 Flash Preview) | Methods: generateContent, countTokens, createCachedContent, batchGenerateContent
+- models/gemini-3-pro-image-preview (Nano Banana Pro) | Methods: generateContent, countTokens, batchGenerateContent
+- models/nano-banana-pro-preview (Nano Banana Pro) | Methods: generateContent, countTokens, batchGenerateContent
+- models/gemini-robotics-er-1.5-preview (Gemini Robotics-ER 1.5 Preview) | Methods: generateContent, countTokens
+- models/gemini-2.5-computer-use-preview-10-2025 (Gemini 2.5 Computer Use Preview 10-2025) | Methods: generateContent, countTokens
+- models/deep-research-pro-preview-12-2025 (Deep Research Pro Preview (Dec-12-2025)) | Methods: generateContent, countTokens
+- models/gemini-embedding-001 (Gemini Embedding 001) | Methods: embedContent, countTextTokens, countTokens, asyncBatchEmbedContent
+- models/aqa (Model that performs Attributed Question Answering.) | Methods: generateAnswer
+- models/imagen-4.0-generate-preview-06-06 (Imagen 4 (Preview)) | Methods: predict
+- models/imagen-4.0-ultra-generate-preview-06-06 (Imagen 4 Ultra (Preview)) | Methods: predict
+- models/imagen-4.0-generate-001 (Imagen 4) | Methods: predict
+- models/imagen-4.0-ultra-generate-001 (Imagen 4 Ultra) | Methods: predict
+- models/imagen-4.0-fast-generate-001 (Imagen 4 Fast) | Methods: predict
+- models/veo-2.0-generate-001 (Veo 2) | Methods: predictLongRunning
+- models/veo-3.0-generate-001 (Veo 3) | Methods: predictLongRunning
+- models/veo-3.0-fast-generate-001 (Veo 3 fast) | Methods: predictLongRunning
+- models/veo-3.1-generate-preview (Veo 3.1) | Methods: predictLongRunning
+- models/veo-3.1-fast-generate-preview (Veo 3.1 fast) | Methods: predictLongRunning
+- models/gemini-2.5-flash-native-audio-latest (Gemini 2.5 Flash Native Audio Latest) | Methods: countTokens, bidiGenerateContent
+- models/gemini-2.5-flash-native-audio-preview-09-2025 (Gemini 2.5 Flash Native Audio Preview 09-2025) | Methods: countTokens, bidiGenerateContent
+- models/gemini-2.5-flash-native-audio-preview-12-2025 (Gemini 2.5 Flash Native Audio Preview 12-2025) | Methods: countTokens, bidiGenerateContent

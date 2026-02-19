@@ -1,0 +1,243 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 222 87% 20%;
+  /* #072261 */
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 222 87% 20%;
+  /* Matching Primary */
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+  --radius: 0.5rem;
+
+  /* GtHoverLogo Colors */
+  --gt-base-stroke: rgba(255, 255, 255, 0.22);
+  /* Always light for dark navy bg */
+  --gt-glow-a: #eb7b12;
+  --gt-glow-b: #e29014;
+  --gt-glow-c: #db691c;
+}
+
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+  --card: 217 33% 17%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 47% 11%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  /* White */
+  --primary-foreground: 222 47% 11%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 30%;
+  /* High contrast border */
+  --input: 217 33% 30%;
+  /* High contrast input border */
+  --ring: 210 40% 98%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+
+  /* GtHoverLogo Colors */
+  /* Using same light base stroke since container is always dark */
+  --gt-base-stroke: rgba(255, 255, 255, 0.22);
+  /* Increased visibility from 0.18 */
+  --gt-glow-a: #eb7b12;
+  --gt-glow-b: #e29014;
+  --gt-glow-c: #db691c;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --animate-shine: shine 8s linear infinite;
+  --animate-blob: blob 7s infinite;
+  --animate-aurora: aurora 60s linear infinite;
+  --animate-shiny-badge-slide: shiny-badge-slide 2s infinite;
+
+
+
+
+}
+
+@keyframes shine {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes aurora {
+  from {
+    background-position: 50% 50%, 50% 50%;
+  }
+
+  to {
+    background-position: 350% 50%, 350% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Hide scrollbars globally but keep functionality */
+  * {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+  }
+
+  /* Remove default show password button in Edge/IE */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
+}
+
+.aurora-bg {
+  background-image:
+    radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+}
+
+/* Calendar Dark Mode Overrides */
+.dark .rbc-today {
+  background-color: hsla(222, 87%, 65%, 0.15) !important;
+  border: none !important;
+}
+
+.dark .rbc-off-range-bg {
+  background-color: hsla(217, 33%, 12%, 1) !important;
+}
+
+/* Force ALL calendar borders to use the soft blue color */
+.dark .rbc-calendar *,
+.dark .rbc-calendar *::before,
+.dark .rbc-calendar *::after {
+  border-color: hsla(217, 33%, 25%, 1) !important;
+}
+
+/* Specific left border for day slots in time view to replace the white lines */
+.dark .rbc-day-slot {
+  border-left: 1px solid hsla(217, 33%, 25%, 1) !important;
+}
+
+/* Fix for internal white lines in time view */
+.dark .rbc-timeslot-group {
+  border-bottom: 1px solid hsla(217, 33%, 25%, 1) !important;
+}
+
+.dark .rbc-time-content>*+*+* {
+  border-left: 1px solid hsla(217, 33%, 25%, 1) !important;
+}
+
+.dark .rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid hsla(217, 33%, 25%, 1) !important;
+}
+
+/* Fix for month view outer border */
+.dark .rbc-month-view {
+  border: 1px solid hsla(217, 33%, 25%, 1) !important;
+}
+
+/* Increase height of time slots */
+.rbc-timeslot-group {
+  min-height: 80px !important;
+}

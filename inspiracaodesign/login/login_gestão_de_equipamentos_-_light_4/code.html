@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Confirmação de Cadastro - Dark</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#143db8",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0B0F19","card-dark": "#111521",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        :root {
+            color-scheme: dark;
+        }
+    </style>
+</head>
+<body class="bg-background-dark flex min-h-screen flex-col items-center justify-center p-4 text-slate-100">
+<div class="w-full max-w-[1000px] overflow-hidden rounded-2xl bg-card-dark shadow-2xl lg:grid lg:grid-cols-2 border border-slate-800/50">
+<div class="flex flex-col justify-center p-8 sm:p-12 lg:p-16 bg-[#0f131f]">
+<div class="mb-8 flex flex-col items-start">
+<div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 text-green-400">
+<span class="material-symbols-outlined text-[32px]">check_circle</span>
+</div>
+<h1 class="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Solicitação Enviada!
+            </h1>
+<p class="mt-4 text-base text-slate-400 leading-relaxed">
+                Obrigado por se cadastrar. Sua solicitação de acesso foi recebida e está atualmente <span class="text-white font-medium">em análise</span> pela nossa equipe de administração.
+            </p>
+<p class="mt-4 text-base text-slate-400 leading-relaxed">
+                Você receberá um e-mail de confirmação assim que seu perfil for ativado. Este processo geralmente leva até 24 horas úteis.
+            </p>
+</div>
+<div class="mt-4">
+<button class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-900/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                Voltar para o login
+            </button>
+</div>
+<div class="mt-8 border-t border-slate-800 pt-6">
+<p class="text-xs text-slate-500">
+                Dúvidas? Entre em contato com o <a class="text-primary hover:text-blue-400 hover:underline" href="#">suporte técnico</a>.
+            </p>
+</div>
+</div>
+<div class="relative hidden flex-col justify-between overflow-hidden bg-slate-900 p-12 text-white lg:flex">
+<div class="absolute inset-0 z-0">
+<img alt="Modern industrial warehouse with automated equipment shelves" class="h-full w-full object-cover opacity-30 mix-blend-overlay" data-alt="Modern industrial warehouse with automated equipment shelves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmxPX3mTi1zN1yr40sHDYbIKHBpvIp_3bdQv-ybH_rfLnZmQsIFJJTuYC-SFgCVOcOjjkUIxi1TExNsedlIs9QZTGHbwFBBOzRaQDuXRDq4Dx5L82kYT5Jyp7C5DXmN33i9x0Rhd0H_1gRL0PfZVlLEi8RWuGN5sLMBAoX9DbrRXT67w-8C3bXMvB9yyl3297KLJCtc7CqIlAlryBxPN5ZXUL6DEk2j0W6rZIEx-jSTLJJO62tOY81C34utwAwkFPxyElpOffBDLbt"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 to-[#0B0F19]/95 mix-blend-multiply"></div>
+</div>
+<div class="relative z-10 flex h-full flex-col justify-between">
+<div class="flex items-center gap-2">
+<svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-xl font-bold tracking-tight">GestãoEquip</span>
+</div>
+<div class="space-y-6">
+<blockquote class="space-y-2 border-l-2 border-primary/50 pl-4">
+<p class="text-lg font-medium leading-relaxed text-slate-200 italic">
+                        "Segurança e controle são os pilares da nossa operação. Cada novo acesso é verificado para garantir a integridade dos nossos dados."
+                    </p>
+<footer class="text-sm font-medium text-slate-400">
+                        — Equipe de Segurança da Informação
+                    </footer>
+</blockquote>
+<div class="flex flex-wrap gap-3 pt-4">
+<div class="flex items-center gap-2 rounded-full bg-slate-800/50 border border-slate-700/50 px-3 py-1 text-xs font-medium backdrop-blur-sm text-slate-300">
+<span class="material-symbols-outlined text-[16px] text-primary">admin_panel_settings</span>
+                        Verificação Manual
+                    </div>
+<div class="flex items-center gap-2 rounded-full bg-slate-800/50 border border-slate-700/50 px-3 py-1 text-xs font-medium backdrop-blur-sm text-slate-300">
+<span class="material-symbols-outlined text-[16px] text-primary">encrypted</span>
+                        Criptografia de Ponta
+                    </div>
+</div>
+</div>
+<div class="text-xs text-slate-500/80">
+                © 2024 GestãoEquip Inc. Todos os direitos reservados.
+            </div>
+</div>
+</div>
+</div>
+
+</body></html>
