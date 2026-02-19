@@ -1,10 +1,11 @@
-"use client";
-
-import React from "react";
+import dynamic from "next/dynamic";
 import { ModeToggle } from "@/components/mode-toggle";
-import { BackgroundBeams } from "@/components/ui/background-beams";
 import { GtHoverLogo } from "@/components/ui/gt-hover-logo";
 import { cn } from "@/lib/utils";
+
+const FloatingLines = dynamic(() => import("@/components/ui/floating-lines"), {
+    ssr: false
+});
 
 interface AuthShellProps {
     children: React.ReactNode;
@@ -17,23 +18,20 @@ export function AuthShell({ children }: AuthShellProps) {
 
     return (
         <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-x-hidden">
-            {/* Background Wrapper - Fixed & Clipped */}
-            <div
-                className={cn(
-                    "fixed inset-0 w-full h-full overflow-hidden -z-10 pointer-events-none",
-                    // Light Mode Beam Colors
-                    "[--beam-1:#9732EA] [--beam-2:#4587D7] [--beam-3:#2DE6EF]",
-                    "[--beam-glow-1:#7B7B77FF] [--beam-glow-2:#7B7B77FF] [--beam-glow-3:#7B7B77FF]",
-                    // Dark Mode Beam Colors
-                    "dark:[--beam-1:#9732EA] dark:[--beam-2:#4587D7] dark:[--beam-3:#2DE6EF]",
-                    "dark:[--beam-glow-1:#DCFAFC] dark:[--beam-glow-2:#DCFAFC] dark:[--beam-glow-3:#DCFAFC]"
-                )}
-            >
+            {/* Background Wrapper */}
+            <div className="fixed inset-0 w-full h-full -z-10 pointer-events-none">
                 {/* Layer 0: Main Background Color */}
                 <div className="absolute inset-0 bg-white dark:bg-[#020c1b] -z-20"></div>
 
-                {/* Layer 1: Background Beams */}
-                <BackgroundBeams className="absolute inset-0 -z-10" mode={effectsMode} />
+                {/* Layer 1: Floating Lines */}
+                <FloatingLines
+                    effectsMode={effectsMode}
+                    enabledWaves="top,middle,bottom"
+                    lineCount={3}
+                    lineDistance={21}
+                    bendRadius={13}
+                    bendStrength={0.5}
+                />
             </div>
 
             <div className="absolute top-4 right-4 z-50">
