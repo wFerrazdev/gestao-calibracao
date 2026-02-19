@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { calculateEquipmentStatus } from '@/lib/equipment/calculate-status';
 import { EquipmentStatus } from '@prisma/client';
 import { createAuditLog } from '@/lib/audit';
+import { getCalibrationResult, parseCalibrationValue } from '@/lib/utils/calibration-logic';
 
 export async function GET(
     request: Request,
@@ -11,6 +12,13 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
+        const { searchParams } = new URL(request.url);
+
+        // Paginação
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '10');
+        const skip = (page - 1) * limit;
+
         const user = await getCurrentUser();
 
         // Verificar se equipamento existe e se usuário tem acesso
@@ -34,22 +42,33 @@ export async function GET(
             );
         }
 
-        // Buscar calibrações
-        const calibrations = await prisma.calibrationRecord.findMany({
-            where: { equipmentId: id },
-            include: {
-                User: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
+        // Buscar calibrações com paginação e contagem total
+        const [calibrations, total] = await Promise.all([
+            prisma.calibrationRecord.findMany({
+                where: { equipmentId: id },
+                include: {
+                    User: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
                     },
                 },
-            },
-            orderBy: { calibrationDate: 'desc' },
-        });
+                orderBy: { calibrationDate: 'desc' },
+                skip,
+                take: limit,
+            }),
+            prisma.calibrationRecord.count({
+                where: { equipmentId: id }
+            })
+        ]);
 
-        return NextResponse.json(calibrations);
+        return NextResponse.json({
+            calibrations,
+            total,
+            hasMore: skip + calibrations.length < total
+        });
     } catch (error: any) {
         console.error('Error fetching calibrations:', error);
         return NextResponse.json(
@@ -75,7 +94,7 @@ export async function POST(
             );
         }
 
-        const body = await request.json() as any; // TODO: strict type
+        const body = await request.json() as any;
 
         // Verificar se equipamento existe
         const equipment: any = await prisma.equipment.findUnique({
@@ -84,7 +103,6 @@ export async function POST(
                 EquipmentType: {
                     include: {
                         CalibrationRule: true,
-                        AcceptanceCriteria: true,
                     },
                 },
             },
@@ -97,50 +115,10 @@ export async function POST(
             );
         }
 
-        // Lógica de Aprovação/Reprovação
-        let calibrationStatus: 'APPROVED' | 'REJECTED' = 'APPROVED';
-        const errorVal = body.error !== undefined ? parseFloat(body.error) : null;
-        const uncertaintyVal = body.uncertainty !== undefined ? parseFloat(body.uncertainty) : null;
-
-        if (equipment.EquipmentType.AcceptanceCriteria.length > 0 && (errorVal !== null || uncertaintyVal !== null)) {
-            // Tentar extrair capacidade numérica
-            const capacityValue = equipment.capacity ? parseFloat(equipment.capacity.replace(/[^\d.-]/g, '')) : null;
-
-            // Encontrar critério correspondente
-            // Lógica de Validação Rigorosa
-            // 1. Encontrar critério pelo range de capacidade
-            const capacity = parseFloat(equipment.capacity || '0');
-            const criterion = equipment.EquipmentType.AcceptanceCriteria.find((c: any) => {
-                // Se não tem range definido (bomeira?), pula
-                if (c.rangeMin === null && c.rangeMax === null) return true;
-
-                // Verifica range (min <= cap <= max)
-                const min = c.rangeMin ?? -Infinity;
-                const max = c.rangeMax ?? Infinity;
-                return capacity >= min && capacity <= max;
-            });
-
-            if (criterion) {
-                // Critério Encontrado - Validar
-                const error = body.error !== undefined ? Math.abs(body.error) : 0; // Usa módulo do erro
-                const uncertainty = body.uncertainty !== undefined ? Math.abs(body.uncertainty) : 0;
-
-                const maxError = criterion.maxError ?? Infinity;
-                const maxUncertainty = criterion.maxUncertainty ?? Infinity;
-
-                // Regra: (Erro + Incerteza) <= Erro Máximo Admissível
-                // E também: Incerteza <= Incerteza Máxim (se definida separadamente, opcionalmente)
-
-                const isCompliant = (error + uncertainty) <= maxError && uncertainty <= maxUncertainty;
-
-                calibrationStatus = isCompliant ? 'APPROVED' : 'REJECTED';
-            } else {
-                // Se não achou critério para a capacidade, o que fazer?
-                // Por padrão, se não tem regra, aprovamos? Ou deixamos como estava?
-                // Vamos manter APPROVED se não tiver critério, mas idealmente deveria avisar.
-                calibrationStatus = 'APPROVED';
-            }
-        }
+        // Lógica de Aprovação/Reprovação (Nova Regra: erro > incerteza)
+        const calibrationStatus = getCalibrationResult(body.error, body.uncertainty);
+        const errorVal = parseCalibrationValue(body.error);
+        const uncertaintyVal = parseCalibrationValue(body.uncertainty);
 
         // Criar calibração
         const calibration = await prisma.calibrationRecord.create({
@@ -174,9 +152,6 @@ export async function POST(
         const calibrationDate = new Date(body.calibrationDate);
         let dueDate = null;
         let status: EquipmentStatus = 'VENCIDO';
-        // Se a calibração foi REJEITADA, o equipamento não deveria ficar CALIBRADO?
-        // Por enquanto, mantemos a lógica de data, mas talvez devêssemos marcar como DESATIVADO ou manter VENCIDO?
-        // O usuário não especificou o comportamento do equipamento, apenas "mostra aprovado ou reprovado".
 
         if (equipment.EquipmentType.CalibrationRule) {
             const result = calculateEquipmentStatus(
@@ -207,6 +182,7 @@ export async function POST(
                 equipmentId: id,
                 certificateNumber: body.certificateNumber,
                 hasAttachment: !!body.attachmentKey,
+                status: calibrationStatus
             },
         });
 

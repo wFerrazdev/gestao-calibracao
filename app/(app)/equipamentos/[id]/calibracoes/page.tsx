@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Download, Upload, FileText, Trash2, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ConfirmModal } from '@/components/confirm-modal';
+import { CalibrationTimeline } from '@/components/calibrations/calibration-timeline';
 
 interface Calibration {
     id: string;
@@ -22,8 +23,8 @@ interface Calibration {
     attachmentUrl: string | null;
     attachmentKey: string | null;
     createdAt: string;
-    error?: number | null;
-    uncertainty?: number | null;
+    error: number | null;
+    uncertainty: number | null;
     status: 'APPROVED' | 'REJECTED';
 }
 
@@ -42,6 +43,10 @@ export default function CalibracoesPage() {
     const [calibrations, setCalibrations] = useState<Calibration[]>([]);
     const [equipmentInfo, setEquipmentInfo] = useState<EquipmentInfo | null>(null);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
+
     const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -57,35 +62,53 @@ export default function CalibracoesPage() {
     });
     const [file, setFile] = useState<File | null>(null);
 
-    const fetchCalibrations = useCallback(async () => {
+    const fetchCalibrations = useCallback(async (pageNum: number = 1, append: boolean = false) => {
         if (!firebaseUser || !equipmentId) return;
+
+        if (append) setLoadingMore(true);
+        else setLoading(true);
+
         try {
             const token = await firebaseUser.getIdToken();
-            const res = await fetch(`/api/equipment/${equipmentId}/calibrations`, {
+            const res = await fetch(`/api/equipment/${equipmentId}/calibrations?page=${pageNum}&limit=10`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             if (res.ok) {
                 const data = await res.json();
-                setCalibrations(data.calibrations || data);
-                // Buscar info do equipamento
-                const eqRes = await fetch(`/api/equipment/${equipmentId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (eqRes.ok) {
-                    const eq = await eqRes.json();
-                    setEquipmentInfo({ id: eq.id, name: eq.name, code: eq.code });
+                const fetchedCalibrations = data.calibrations || [];
+
+                if (append) {
+                    setCalibrations(prev => [...prev, ...fetchedCalibrations]);
+                } else {
+                    setCalibrations(fetchedCalibrations);
+                }
+
+                setHasMore(data.hasMore);
+                setPage(pageNum);
+
+                // Buscar info do equipamento apenas na primeira carga
+                if (pageNum === 1) {
+                    const eqRes = await fetch(`/api/equipment/${equipmentId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (eqRes.ok) {
+                        const eq = await eqRes.json();
+                        setEquipmentInfo({ id: eq.id, name: eq.name, code: eq.code });
+                    }
                 }
             }
         } catch (e) {
             console.error('Erro ao buscar calibrações:', e);
+            toast.error('Erro ao carregar histórico');
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     }, [firebaseUser, equipmentId]);
 
     useEffect(() => {
-        fetchCalibrations();
+        fetchCalibrations(1);
     }, [fetchCalibrations]);
 
     const handleUploadAndSubmit = async (e: React.FormEvent) => {
@@ -98,7 +121,7 @@ export default function CalibracoesPage() {
             let attachmentUrl = '';
             let attachmentKey = '';
 
-            // Se tem arquivo, fazer upload via R2
+            // Upload de arquivo
             if (file) {
                 setUploading(true);
                 const presignRes = await fetch('/api/upload/presigned', {
@@ -140,31 +163,25 @@ export default function CalibracoesPage() {
                 setUploading(false);
             }
 
-            // Criar registro de calibração
-            const body: any = {
-                calibrationDate: form.calibratedAt,
-                certificateNumber: form.certificateNumber || undefined,
-                performedBy: form.performedBy || undefined,
-                notes: form.notes || undefined,
-                error: form.error ? parseFloat(form.error) : undefined,
-                uncertainty: form.uncertainty ? parseFloat(form.uncertainty) : undefined,
-            };
-
-            if (attachmentKey) {
-                body.attachmentKey = attachmentKey;
-                body.attachmentUrl = attachmentUrl;
-                body.attachmentName = file?.name;
-                body.attachmentMime = file?.type;
-                body.attachmentSize = file?.size;
-            }
-
             const res = await fetch(`/api/equipment/${equipmentId}/calibrations`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(body),
+                body: JSON.stringify({
+                    calibrationDate: form.calibratedAt,
+                    certificateNumber: form.certificateNumber || undefined,
+                    performedBy: form.performedBy || undefined,
+                    notes: form.notes || undefined,
+                    error: form.error || undefined,
+                    uncertainty: form.uncertainty || undefined,
+                    attachmentKey: attachmentKey || undefined,
+                    attachmentUrl: attachmentUrl || undefined,
+                    attachmentName: file?.name,
+                    attachmentMime: file?.type,
+                    attachmentSize: file?.size,
+                }),
             });
 
             if (res.ok) {
@@ -179,7 +196,7 @@ export default function CalibracoesPage() {
                     uncertainty: '',
                 });
                 setFile(null);
-                fetchCalibrations();
+                fetchCalibrations(1);
             } else {
                 const data = await res.json();
                 toast.error(data.error || 'Erro ao registrar calibração');
@@ -202,12 +219,11 @@ export default function CalibracoesPage() {
             });
 
             if (res.ok) {
-                toast.success('Calibração excluída com sucesso');
+                toast.success('Calibração excluída!');
                 setDeleteId(null);
-                fetchCalibrations();
+                fetchCalibrations(1);
             } else {
-                const data = await res.json();
-                toast.error(data.error || 'Erro ao excluir calibração');
+                toast.error('Erro ao excluir calibração');
             }
         } catch {
             toast.error('Erro ao excluir calibração');
@@ -239,49 +255,69 @@ export default function CalibracoesPage() {
             ...prev,
             calibratedAt: data.calibrationDate || prev.calibratedAt,
             certificateNumber: data.certificateNumber || prev.certificateNumber,
-            notes: prev.notes ? `${prev.notes}\n\n[IA] Status identificado: ${data.status}` : `[IA] Status identificado: ${data.status}`,
+            notes: prev.notes ? `${prev.notes}\n\n[IA] Status: ${data.status}` : `[IA] Status: ${data.status}`,
         }));
     };
 
-    if (loading) {
+    if (loading && page === 1) {
         return (
-            <div className="space-y-4">
-                <Skeleton className="h-8 w-64" />
-                {[...Array(3)].map((_, i) => (
-                    <Skeleton key={i} className="h-24" />
-                ))}
+            <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-9 w-24" />
+                    <div className="space-y-2 flex-1">
+                        <Skeleton className="h-8 w-64" />
+                        <Skeleton className="h-4 w-48" />
+                    </div>
+                </div>
+                <div className="space-y-8 pl-8">
+                    {[...Array(3)].map((_, i) => (
+                        <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                    ))}
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center gap-4">
-                <Link href={`/equipamentos/${equipmentId}`}>
-                    <Button variant="ghost" size="sm">
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Voltar
-                    </Button>
-                </Link>
-                <div className="flex-1">
-                    <h1 className="text-2xl font-bold">Histórico de Calibrações</h1>
-                    <p className="text-sm text-muted-foreground">
-                        {equipmentInfo?.name} ({equipmentInfo?.code})
-                    </p>
+        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+            {/* Header Estilo Stitch */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+                <div className="space-y-4">
+                    <Link href={`/equipamentos/${equipmentId}`}>
+                        <Button variant="ghost" size="sm" className="-ml-2 h-8 text-muted-foreground hover:text-foreground">
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Voltar
+                        </Button>
+                    </Link>
+                    <div className="space-y-1">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                            Histórico de Calibrações
+                        </h1>
+                        <p className="text-base text-muted-foreground font-medium uppercase tracking-wide">
+                            {equipmentInfo?.name} <span className="mx-2 text-border">•</span> ({equipmentInfo?.code})
+                        </p>
+                    </div>
                 </div>
+
                 {permissions?.canEditEquipment && (
-                    <Button onClick={() => setShowForm(!showForm)}>
-                        <Plus className="h-4 w-4 mr-2" />
+                    <Button
+                        size="lg"
+                        className="rounded-full px-6 font-semibold shadow-md active:scale-95 transition-transform"
+                        onClick={() => setShowForm(!showForm)}
+                    >
+                        <Plus className="h-5 w-5 mr-2" />
                         Nova Calibração
                     </Button>
                 )}
             </div>
 
-            {/* Formulário para nova calibração */}
+            {/* Formulário (Modal logic could be improved, keeping existing inline for now but styled) */}
             {showForm && (
-                <div className="rounded-lg border bg-card p-6">
-                    <h3 className="text-sm font-semibold mb-4">Registrar Calibração</h3>
+                <div className="rounded-2xl border bg-card p-6 shadow-lg animate-in slide-in-from-top-4 duration-300">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-bold">Registrar Calibração</h3>
+                        <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>Cancelar</Button>
+                    </div>
 
                     <div className="mb-6">
                         <SmartUpload
@@ -290,198 +326,120 @@ export default function CalibracoesPage() {
                         />
                     </div>
 
-                    <form onSubmit={handleUploadAndSubmit} className="space-y-4">
+                    <form onSubmit={handleUploadAndSubmit} className="space-y-5">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Data da Calibração *</label>
+                                <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Data da Calibração *</label>
                                 <Input
                                     type="date"
                                     value={form.calibratedAt}
                                     onChange={e => setForm(f => ({ ...f, calibratedAt: e.target.value }))}
                                     required
+                                    className="rounded-lg"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Nº Certificado</label>
+                                <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Nº Certificado</label>
                                 <Input
                                     value={form.certificateNumber}
                                     onChange={e => setForm(f => ({ ...f, certificateNumber: e.target.value }))}
-                                    placeholder="CERT-2024-001"
+                                    placeholder="CERT-XXXX-2024"
+                                    className="rounded-lg"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Realizada por</label>
+                                <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Realizada por</label>
                                 <Input
                                     value={form.performedBy}
                                     onChange={e => setForm(f => ({ ...f, performedBy: e.target.value }))}
-                                    placeholder="Laboratório XYZ"
+                                    placeholder="Laboratório"
+                                    className="rounded-lg"
                                 />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Erro Encontrado</label>
+                                <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Erro Encontrado</label>
                                 <Input
-                                    type="number"
-                                    step="0.0001"
                                     value={form.error}
                                     onChange={e => setForm(f => ({ ...f, error: e.target.value }))}
-                                    placeholder="Ex: 0.02"
+                                    placeholder="Ex: 0,02"
+                                    className="rounded-lg"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Incerteza</label>
+                                <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Incerteza</label>
                                 <Input
-                                    type="number"
-                                    step="0.0001"
                                     value={form.uncertainty}
                                     onChange={e => setForm(f => ({ ...f, uncertainty: e.target.value }))}
-                                    placeholder="Ex: 0.01"
+                                    placeholder="Ex: 0,01"
+                                    className="rounded-lg"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Observações</label>
+                            <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Observações</label>
                             <textarea
                                 value={form.notes}
                                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] resize-y"
-                                placeholder="Anotações sobre a calibração..."
+                                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                placeholder="Anotações adicionais..."
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Anexar Certificado (PDF)</label>
-                            <div className="flex items-center gap-3">
-                                <Input
-                                    type="file"
-                                    accept=".pdf,.PDF"
-                                    onChange={e => setFile(e.target.files?.[0] || null)}
-                                    className="flex-1"
-                                />
-                                {file && (
-                                    <span className="text-xs text-muted-foreground">
-                                        {file.name} ({(file.size / 1024).toFixed(0)} KB)
-                                    </span>
-                                )}
-                            </div>
+                            <label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">Certificado (PDF)</label>
+                            <Input
+                                type="file"
+                                accept=".pdf,.PDF"
+                                onChange={e => setFile(e.target.files?.[0] || null)}
+                                className="rounded-lg"
+                            />
                         </div>
 
-                        <div className="flex justify-end gap-3">
-                            <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-                                Cancelar
-                            </Button>
-                            <Button type="submit" disabled={submitting}>
-                                {uploading
-                                    ? 'Fazendo upload...'
-                                    : submitting
-                                        ? 'Salvando...'
-                                        : 'Registrar Calibração'}
+                        <div className="flex justify-end pt-4">
+                            <Button type="submit" disabled={submitting} className="rounded-full px-8">
+                                {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {uploading ? 'Fazendo upload...' : submitting ? 'Salvando...' : 'Salvar Calibração'}
                             </Button>
                         </div>
                     </form>
                 </div>
             )}
 
+            {/* Timeline Wrapper */}
+            <div className="py-4">
+                {calibrations.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed p-16 text-center bg-muted/10">
+                        <FileText className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+                        <h4 className="text-lg font-semibold text-muted-foreground">Nenhuma calibração</h4>
+                        <p className="text-sm text-muted-foreground mt-1">Clique em "Nova Calibração" para registrar.</p>
+                    </div>
+                ) : (
+                    <CalibrationTimeline
+                        calibrations={calibrations}
+                        hasMore={hasMore}
+                        onLoadMore={() => fetchCalibrations(page + 1, true)}
+                        isLoadingMore={loadingMore}
+                        onDownload={handleDownload}
+                        onDelete={setDeleteId}
+                        canDelete={isCriador || user?.role === 'ADMIN'}
+                    />
+                )}
+            </div>
+
             {/* Modal de Confirmação */}
             <ConfirmModal
                 isOpen={!!deleteId}
                 onClose={() => setDeleteId(null)}
                 onConfirm={handleDelete}
-                title="Excluir Calibração"
-                description="Tem certeza que deseja excluir este registro de calibração? Esta ação não pode ser desfeita e pode afetar a data de última calibração do equipamento."
+                title="Excluir Registro"
+                description="Tem certeza que deseja excluir esta calibração do histórico?"
                 variant="destructive"
                 confirmText="Excluir"
             />
-
-            {/* Lista de calibrações */}
-            <div className="space-y-3">
-                {calibrations.length === 0 ? (
-                    <div className="rounded-lg border bg-card p-12 text-center">
-                        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                        <p className="text-muted-foreground">Nenhuma calibração registrada</p>
-                    </div>
-                ) : (
-                    calibrations.map((cal) => (
-                        <div key={cal.id} className="rounded-lg border bg-card p-4 hover:bg-muted/30 transition-colors">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <FileText className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            {new Date(cal.calibrationDate).toLocaleDateString('pt-BR', {
-                                                day: '2-digit',
-                                                month: 'long',
-                                                year: 'numeric',
-                                            })}
-                                        </p>
-                                        <div className="flex gap-3 text-xs text-muted-foreground mt-0.5">
-                                            {cal.certificateNumber && (
-                                                <span>Cert: {cal.certificateNumber}</span>
-                                            )}
-                                            {cal.performedBy && (
-                                                <span>Por: {cal.performedBy}</span>
-                                            )}
-                                        </div>
-                                        <div className="flex gap-4 mt-2 text-sm">
-                                            {cal.error !== null && cal.error !== undefined && (
-                                                <span className="text-muted-foreground">Erro: <span className="font-medium text-foreground">{cal.error}</span></span>
-                                            )}
-                                            {cal.uncertainty !== null && cal.uncertainty !== undefined && (
-                                                <span className="text-muted-foreground">Incerteza: <span className="font-medium text-foreground">{cal.uncertainty}</span></span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 mt-2 sm:mt-0">
-                                    <div className="flex items-center gap-2">
-                                        {cal.status === 'APPROVED' ? (
-                                            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                                                <CheckCircle2 className="h-3 w-3 mr-1" /> Aprovado
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                                                <XCircle className="h-3 w-3 mr-1" /> Reprovado
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {cal.attachmentKey && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handleDownload(cal.attachmentKey!, cal.certificateNumber)}
-                                            >
-                                                <Download className="h-4 w-4 mr-1" />
-                                                PDF
-                                            </Button>
-                                        )}
-                                        {(isCriador || user?.role === 'ADMIN') && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteId(cal.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            {cal.notes && (
-                                <p className="text-sm text-muted-foreground mt-2 pl-14">
-                                    {cal.notes}
-                                </p>
-                            )}
-                        </div>
-                    ))
-                )}
-            </div>
         </div>
     );
 }
