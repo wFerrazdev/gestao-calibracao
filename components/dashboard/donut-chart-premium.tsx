@@ -36,10 +36,11 @@ export function DonutChartPremium({ data }: DonutChartProps) {
 
     return (
         <ChartCardPremium title="Distribuição por Tipo" icon={PieChartIcon} iconColor="text-cyan-500 dark:text-cyan-400">
-            <div className="flex-1 w-full flex flex-col items-center justify-center p-4">
-                <div className="relative w-full h-full flex items-center justify-center">
+            <div className="flex-1 w-full flex flex-col justify-center min-h-0 relative">
+                {/* Graph Wrapper with explicit height to prevent disappearance */}
+                <div className="flex-1 w-full min-h-[240px] relative">
                     {/* Glow Effect - positioned behind the chart */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-cyan-500/10 blur-3xl rounded-full pointer-events-none" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-cyan-500/10 blur-3xl rounded-full pointer-events-none" />
 
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -51,8 +52,8 @@ export function DonutChartPremium({ data }: DonutChartProps) {
                                 data={formattedData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={80} // Slightly thicker
-                                outerRadius={110} // Slightly larger
+                                innerRadius={75}
+                                outerRadius={100}
                                 paddingAngle={2}
                                 dataKey="value"
                                 cornerRadius={6}
@@ -69,12 +70,12 @@ export function DonutChartPremium({ data }: DonutChartProps) {
                         </PieChart>
                     </ResponsiveContainer>
 
-                    {/* Center Text */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-10">
-                        <span className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">
+                    {/* Center Text Wrapper - Guaranteed central alignment */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                        <span className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter leading-none">
                             {total}
                         </span>
-                        <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
+                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">
                             Total
                         </span>
                     </div>
