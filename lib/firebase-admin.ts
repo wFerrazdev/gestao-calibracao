@@ -4,7 +4,6 @@ import * as fs from 'fs';
 
 if (!admin.apps.length) {
     try {
-        // Tentar carregar o JSON direto do arquivo (mais confiável que .env local)
         const serviceAccountPath = path.join(process.cwd(), 'gestao-calibracao-firebase-adminsdk-fbsvc-e4059f2211.json');
 
         if (fs.existsSync(serviceAccountPath)) {
@@ -14,12 +13,22 @@ if (!admin.apps.length) {
             });
             console.log('✅ Firebase Admin inicializado com Service Account JSON');
         } else {
-            // Normatizar a chave privada (remover aspas e corrigir quebras de linha)
-            const privateKey = process.env.FIREBASE_PRIVATE_KEY
-                ?.replace(/\\n/g, '\n')
-                ?.replace(/^"|"$/g, ''); // Remove aspas no início e fim
+            // Robust private key parsing for Vercel/CI environments
+            let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-            if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && privateKey) {
+            if (privateKey) {
+                // Correct double escaping (\\n -> \n) and ensure proper PEM format
+                privateKey = privateKey
+                    .replace(/\\n/g, '\n') // Fix double escaped \n
+                    .replace(/\n/g, '\n')   // Ensure real newlines
+                    .replace(/^"|"$/g, ''); // Remove surrounding quotes
+
+                // Debug log (safe parts only)
+                console.log('--- Firebase Key Debug ---');
+                console.log('Key length:', privateKey.length);
+                console.log('Starts with BEGIN:', privateKey.includes('BEGIN PRIVATE KEY'));
+                console.log('Ends with END:', privateKey.includes('END PRIVATE KEY'));
+
                 admin.initializeApp({
                     credential: admin.credential.cert({
                         projectId: process.env.FIREBASE_PROJECT_ID,
@@ -29,12 +38,13 @@ if (!admin.apps.length) {
                 });
                 console.log('✅ Firebase Admin inicializado com variáveis de ambiente');
             } else {
-                console.warn('⚠️ Firebase Admin não inicializado: Variáveis de ambiente ausentes ou incompletas.');
+                console.warn('⚠️ Firebase Admin não inicializado: FIREBASE_PRIVATE_KEY ausente.');
             }
         }
-    } catch (error) {
-        console.error('❌ Erro ao inicializar Firebase Admin:', error);
-        // Não lançar erro aqui para não quebrar o build do Next.js se as envs não forem necessárias no momento
+    } catch (error: any) {
+        console.error('❌ Erro ao inicializar Firebase Admin:', error.message);
+        // Do not throw at build time to allow static analysis/pre-rendering to succeed
+        // even if keys are missing from the environment.
     }
 }
 
