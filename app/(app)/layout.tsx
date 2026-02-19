@@ -20,10 +20,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     if (loading) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <div className="text-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                    <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <div className="flex flex-col items-center justify-center">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg"></div>
+                    <p className="mt-4 text-sm font-medium text-muted-foreground animate-pulse">Carregando...</p>
                 </div>
             </div>
         );

@@ -18,12 +18,10 @@ export default function HomePage() {
     }
   }, [user, loading, router]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Carregando...</p>
-      </div>
+  <div className="flex h-screen w-full items-center justify-center bg-background">
+    <div className="flex flex-col items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg text-primary"></div>
+      <p className="mt-4 text-sm font-medium text-muted-foreground animate-pulse">Carregando...</p>
     </div>
-  );
+  </div>
 }
