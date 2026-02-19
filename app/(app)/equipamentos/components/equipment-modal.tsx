@@ -148,13 +148,10 @@ export function EquipmentModal({ sectors, types, onClose, onSuccess, mode = 'cre
                 },
                 body: JSON.stringify({
                     ...form,
-                    // If in stock context, sectorId might be empty, ensure it is sent as null if empty (though logic handles it)
-                    // If context is equipment, location is not shown, but might be preserved if editing?
-                    // For now, form state holds values.
-
-                    // Specific logic: 
-                    // If context=stock, force usageStatus=IN_STOCK (if creating) - actually creation default is usually VENCIDO/IN_USE unless specified
-                    // The prompt didn't ask to change usageStatus logic, just UI fields.
+                    // Define usageStatus baseado no contexto da criação
+                    usageStatus: mode === 'create' || mode === 'duplicate'
+                        ? (context === 'stock' ? 'IN_STOCK' : 'IN_USE')
+                        : undefined, // No Edit, geralmente preservamos o atual a menos que mudemos de página
 
                     imageUrl: imageUrl || undefined,
                     photo: undefined, // Don't send file object to API

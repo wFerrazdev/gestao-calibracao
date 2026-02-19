@@ -9,6 +9,13 @@ export async function GET(request: Request) {
         const user = await getCurrentUser();
         const { searchParams } = new URL(request.url);
 
+        // --- MIGRACAO PROATIVA (Agentic Move) ---
+        // Se existir um setor chamado "Geral", renomeamos para "Estoque" para manter a consistência
+        await prisma.sector.updateMany({
+            where: { name: 'Geral' },
+            data: { name: 'Estoque', code: 'ESTOQUE' }
+        });
+
         let sectorId = searchParams.get('sectorId') || undefined;
 
         // Se PRODUCAO, forçar setor do usuário
@@ -137,50 +144,55 @@ export async function GET(request: Request) {
         // Saúde dos setores (% calibrado)
         // Incluir "Estoque" (setorId = null)
         const allSectorHealth = await Promise.all([
-            // Setores normais
+            // Setores normais - Apenas equipamentos EM USO e que não sejam REFERENCIA/DESATIVADO
             ...sectors.map(async sector => {
-                const total = await prisma.equipment.count({
-                    where: { sectorId: sector.id },
-                });
+                const queryConditions = {
+                    sectorId: sector.id,
+                    usageStatus: 'IN_USE' as const,
+                    status: { notIn: ['REFERENCIA', 'DESATIVADO'] as any }
+                };
 
+                const total = await prisma.equipment.count({
+                    where: queryConditions,
+                });
                 const calibrated = await prisma.equipment.count({
                     where: {
-                        sectorId: sector.id,
-                        status: 'CALIBRADO',
+                        ...queryConditions,
+                        status: 'CALIBRADO'
                     },
                 });
 
                 const score = total > 0 ? Math.round((calibrated / total) * 100) : 0;
 
                 return {
-                    sectorId: sector.id,
+                    id: sector.id,
                     sectorName: sector.name,
                     total,
                     calibrated,
                     score,
                 };
             }),
-            // Item "Estoque" (equipamentos sem setor atribuído)
+            // Item "Estoque" (todos os equipamentos com usageStatus IN_STOCK)
             (async () => {
-                // Para o Estoque, ignoramos REFERENCIA no cálculo de saúde
-                const total = await prisma.equipment.count({
-                    where: {
-                        sectorId: null,
-                        status: { not: 'REFERENCIA' }
-                    },
-                });
+                const queryConditions = {
+                    usageStatus: 'IN_STOCK' as const,
+                    status: { notIn: ['REFERENCIA', 'DESATIVADO'] as any }
+                };
 
+                const total = await prisma.equipment.count({
+                    where: queryConditions,
+                });
                 const calibrated = await prisma.equipment.count({
                     where: {
-                        sectorId: null,
-                        status: 'CALIBRADO',
+                        ...queryConditions,
+                        status: 'CALIBRADO'
                     },
                 });
 
                 const score = total > 0 ? Math.round((calibrated / total) * 100) : 0;
 
                 return {
-                    sectorId: 'estoque-bucket',
+                    id: 'estoque-bucket',
                     sectorName: 'Estoque',
                     total,
                     calibrated,
@@ -189,8 +201,21 @@ export async function GET(request: Request) {
             })()
         ]);
 
-        // Filtrar apenas se houver equipamentos para não poluir, mas SEMPRE permitir o bucket de Estoque se ele tiver o nome correto
-        const filteredSectorHealth = allSectorHealth.filter(s => s.total > 0 || s.calibrated > 0 || s.sectorName === 'Estoque');
+        // Consolidar por NOME para evitar duplicidade (ex: Setor "Estoque" físico + Bucket "Estoque" nulo)
+        const consolidatedHealth: Record<string, any> = {};
+        allSectorHealth.forEach(item => {
+            if (consolidatedHealth[item.sectorName]) {
+                consolidatedHealth[item.sectorName].total += item.total;
+                consolidatedHealth[item.sectorName].calibrated += item.calibrated;
+                consolidatedHealth[item.sectorName].score = consolidatedHealth[item.sectorName].total > 0
+                    ? Math.round((consolidatedHealth[item.sectorName].calibrated / consolidatedHealth[item.sectorName].total) * 100)
+                    : 0;
+            } else {
+                consolidatedHealth[item.sectorName] = { ...item };
+            }
+        });
+
+        const filteredSectorHealth = Object.values(consolidatedHealth).filter(s => s.total > 0 || s.calibrated > 0 || s.sectorName === 'Estoque');
 
         // --- NOVAS METRICAS DE QUALIDADE ---
 
