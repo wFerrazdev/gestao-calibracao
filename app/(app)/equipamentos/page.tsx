@@ -427,7 +427,7 @@ export default function EquipamentosPage() {
 
         try {
             const token = await firebaseUser.getIdToken();
-            const res = await fetch('/api/equipment/batch', {
+            const res = await fetch('/api/import/equipamentos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -436,22 +436,22 @@ export default function EquipamentosPage() {
                 body: JSON.stringify({ items: data })
             });
 
-            if (!res.ok) throw new Error('Falha na comunicação com o servidor');
-
-            const result = await res.json();
-
-            if (result.errors && result.errors.length > 0) {
-                console.warn('Erros na importação:', result.errors);
-                toast.warning(`Importação parcial: ${result.created} criados. Alguns erros ocorreram.`);
+            if (res.ok) {
+                const result = await res.json();
+                if (result.errors && result.errors.length > 0) {
+                    toast.warning(`Importação concluída com ${result.errors.length} erros.`);
+                    console.warn('Erros de importação:', result.errors);
+                } else {
+                    toast.success(`${result.created} equipamentos importados.`);
+                }
+                fetchEquipment();
             } else {
-                toast.success(`Sucesso! ${result.created} equipamentos importados. ${result.skipped} duplicados pulados.`);
+                const error = await res.json();
+                toast.error(error.error || 'Erro ao importar equipamentos');
             }
-
-            fetchEquipment();
-
         } catch (error) {
             console.error(error);
-            toast.error('Erro ao enviar dados para importação.');
+            toast.error('Erro ao processar importação');
         } finally {
             toast.dismiss(toastId);
         }
@@ -464,23 +464,21 @@ export default function EquipamentosPage() {
                 <div>
                     <h1 className="text-2xl font-bold">Equipamentos</h1>
                     <p className="text-sm text-muted-foreground">
-                        {total} equipamento{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
+                        {total} equipamentos cadastrados
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => setShowImportModal(true)}>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Importar
-                    </Button>
-                    <Button variant="outline" onClick={() => setShowExportModal(true)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Exportar
-                    </Button>
                     {permissions?.canEditEquipment && (
-                        <Button onClick={handleCreate}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Novo Equipamento
-                        </Button>
+                        <>
+                            <Button variant="outline" onClick={() => setShowImportModal(true)}>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Importar
+                            </Button>
+                            <Button onClick={handleCreate}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Novo Equipamento
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>
@@ -768,8 +766,8 @@ export default function EquipamentosPage() {
                 types={types}
             />
 
-            {/* Modal de Importação */}
             <ImportModal
+                context="equipamentos"
                 isOpen={showImportModal}
                 onClose={() => setShowImportModal(false)}
                 onImport={handleImport}

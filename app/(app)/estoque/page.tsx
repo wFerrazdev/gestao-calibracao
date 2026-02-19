@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { EquipmentModal } from '@/app/(app)/equipamentos/components/equipment-modal';
 import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
 import { ConfirmModal } from '@/components/confirm-modal';
+import { ImportModal } from '@/components/import-modal';
 import {
     Dialog,
     DialogContent,
@@ -64,6 +65,7 @@ export default function EstoquePage() {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
+    const [showImportModal, setShowImportModal] = useState(false);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [types, setTypes] = useState<Array<{ id: string; name: string }>>([]);
@@ -329,6 +331,42 @@ export default function EstoquePage() {
         }
     };
 
+    const handleImport = async (data: any[]) => {
+        if (!firebaseUser) return;
+        const toastId = toast.loading('Importando estoque...');
+
+        try {
+            const token = await firebaseUser.getIdToken();
+            const res = await fetch('/api/import/estoque', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: data })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                if (result.errors && result.errors.length > 0) {
+                    toast.warning(`Importação concluída com ${result.errors.length} erros.`);
+                    console.warn('Erros de importaçãoestoque:', result.errors);
+                } else {
+                    toast.success(`${result.updated} itens de estoque atualizados.`);
+                }
+                fetchEquipment();
+            } else {
+                const error = await res.json();
+                toast.error(error.error || 'Erro ao importar estoque');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Erro ao processar importação');
+        } finally {
+            toast.dismiss(toastId);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -342,10 +380,16 @@ export default function EstoquePage() {
                 </div>
                 <div className="flex gap-2">
                     {permissions?.canEditEquipment && (
-                        <Button onClick={handleCreate}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Novo Equipamento
-                        </Button>
+                        <>
+                            <Button variant="outline" onClick={() => setShowImportModal(true)}>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Importar Estoque
+                            </Button>
+                            <Button onClick={handleCreate}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Novo Equipamento
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>
@@ -575,11 +619,11 @@ export default function EstoquePage() {
                 isOpen={showDetailsModal}
                 onClose={() => setShowDetailsModal(false)}
                 onSchedule={() => { }} // No-op for now in stock
-                onEdit={(eq) => {
+                onEdit={(eq: any) => {
                     setShowDetailsModal(false);
                     handleEdit(eq);
                 }}
-                onDuplicate={(eq) => {
+                onDuplicate={(eq: any) => {
                     setShowDetailsModal(false);
                     handleDuplicate(eq);
                 }}
@@ -709,6 +753,12 @@ export default function EstoquePage() {
                 variant="destructive"
             />
 
+            <ImportModal
+                context="estoque"
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                onImport={handleImport}
+            />
         </div>
     );
 }

@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth/get-current-user';
@@ -7,19 +6,15 @@ import { getCurrentUser } from '@/lib/auth/get-current-user';
 function parseExcelDate(excelDate: any): Date | null {
     if (!excelDate) return null;
 
-    // Se for objeto Date
     if (excelDate instanceof Date) return excelDate;
 
-    // Se for string ISO ou pt-BR
     if (typeof excelDate === 'string') {
         const date = new Date(excelDate);
         if (!isNaN(date.getTime())) return date;
         return null;
     }
 
-    // Se for número serial do Excel (dias desde 1900-01-01)
     if (typeof excelDate === 'number') {
-        // Excel base date logic
         const date = new Date((excelDate - (25567 + 2)) * 86400 * 1000);
         return date;
     }
@@ -45,12 +40,8 @@ export async function POST(request: Request) {
         let skippedCount = 0;
         let errors: string[] = [];
 
-        // Processar item por item (transacional seria ideal, mas pode ser lento para muitos itens, 
-        // ou bloquear demais. Vamos fazer sequencial para garantir connectOrCreate funciona bem).
-
         for (const [index, item] of items.entries()) {
             try {
-                // Campos obrigatórios mínimos
                 if (!item['Código'] || !item['Nome']) {
                     errors.push(`Linha ${index + 2}: Código ou Nome ausente.`);
                     skippedCount++;
@@ -67,58 +58,38 @@ export async function POST(request: Request) {
 
                 if (existing) {
                     skippedCount++;
-                    continue; // Pula existentes (estratégia definida no plano)
+                    continue;
                 }
 
                 // Resolver Relacionamentos (Setor e Tipo)
                 let sectorId = undefined;
-                if (item['Setor']) {
-                    const sectorName = String(item['Setor']).trim();
-                    const sector = await prisma.sector.upsert({
-                        where: { code: sectorName.toUpperCase().replace(/\s+/g, '_') }, // Tentativa de gerar um código único simples
-                        update: {}, // Não atualiza se existe, só retorna
-                        create: {
-                            name: sectorName,
-                            code: sectorName.toUpperCase().replace(/\s+/g, '_')
-                        }
-                    });
-                    // Onde where code pode falhar se o code for null no schema ou não for único confiável.
-                    // O Schema diz Sector code @unique, mas é opcional.
-                    // Melhor estratégia: Find by name first? 
-                    // Prisma não busca por campo não-único no connectOrCreate/upsert where.
-                    // Vamos buscar na mão.
-                }
-
-                // Melhora na lógica de Setor: buscar pelo nome, se não achar, criar.
                 let dbSector;
                 if (item['Setor']) {
                     const sectorName = String(item['Setor']).trim();
                     dbSector = await prisma.sector.findFirst({ where: { name: { equals: sectorName, mode: 'insensitive' } } });
                     if (!dbSector) {
-                        dbSector = await prisma.sector.create({ data: { name: sectorName, code: sectorName.toUpperCase().slice(0, 10).replace(/\s+/g, '_') } });
+                        dbSector = await prisma.sector.create({
+                            data: {
+                                name: sectorName,
+                                code: sectorName.toUpperCase().slice(0, 10).replace(/\s+/g, '_')
+                            }
+                        });
                     }
                     sectorId = dbSector.id;
                 }
 
-                // Lógica de Tipo
                 let dbType;
                 let typeId = undefined;
                 if (item['Tipo']) {
                     const typeName = String(item['Tipo']).trim();
-                    dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } }); // name é unique no schema
+                    dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
                     if (!dbType) {
                         dbType = await prisma.equipmentType.create({ data: { name: typeName } });
                     }
                     typeId = dbType.id;
                 }
 
-                // Se não tem setor ou tipo, precisamos de valores default ou falhar?
-                // O schema diz que Sector relation field [sectorId] references [id]. É obrigatório no modelo Equipment?
-                // model Equipment { sectorId String ... } -> Sim, obrigatório.
-                // Precisamos garantir que tenha um setor e tipo.
-
                 if (!sectorId) {
-                    // Tentar achar um setor "Geral" ou criar
                     let generalSector = await prisma.sector.findFirst({ where: { name: 'Geral' } });
                     if (!generalSector) generalSector = await prisma.sector.create({ data: { name: 'Geral', code: 'GERAL' } });
                     sectorId = generalSector.id;
@@ -130,7 +101,6 @@ export async function POST(request: Request) {
                     typeId = generalType.id;
                 }
 
-                // Parse datas
                 const lastCalibrationDate = parseExcelDate(item['Data Última Calibração']);
                 const dueDate = parseExcelDate(item['Data Vencimento']);
 
@@ -147,13 +117,12 @@ export async function POST(request: Request) {
                         maxError: item['Erro Máximo'] ? String(item['Erro Máximo']) : null,
                         provider: item['Fornecedor'] ? String(item['Fornecedor']) : null,
                         unit: item['Unidade de Medida'] ? String(item['Unidade de Medida']) : null,
-                        // location não vem na planilha, mas podemos prever
-                        location: item['Localização'] ? String(item['Localização']) : null,
                         lastCalibrationDate,
                         dueDate,
-                        status: 'VENCIDO', // Default status, calculado depois ou definido aqui
+                        status: 'VENCIDO',
                         sectorId,
-                        equipmentTypeId: typeId
+                        equipmentTypeId: typeId,
+                        usageStatus: 'IN_USE' // Equipamentos novos entram em uso por padrão
                     }
                 });
 
@@ -173,7 +142,7 @@ export async function POST(request: Request) {
         });
 
     } catch (error) {
-        console.error('Batch import error:', error);
+        console.error('Equipamentos import error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

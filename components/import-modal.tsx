@@ -11,31 +11,42 @@ interface ImportModalProps {
     isOpen: boolean;
     onClose: () => void;
     onImport: (data: any[]) => Promise<void>;
+    context?: 'equipamentos' | 'estoque';
 }
 
-export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
+export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos' }: ImportModalProps) {
     const [isImporting, setIsImporting] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [previewData, setPreviewData] = useState<any[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDownloadTemplate = () => {
-        const headers = [
-            'Código', 'Nome', 'Tipo', 'Setor', 'Modelo', 'Resolução',
-            'Capacidade', 'Responsável', 'Data Última Calibração', 'Data Vencimento',
-            'Faixa de Trabalho', 'Incerteza Admissível', 'Erro Máximo', 'Fornecedor', 'Unidade de Medida', 'Localização'
-        ];
-        // Exemplo de dados para ajudar o usuário
-        const exampleRow = [
-            'EQ-001', 'Paquímetro Digital', 'Dimensional', 'Produção', 'Mitutoyo 500-196-30', '0.01 mm',
-            '150 mm', 'João Silva', '2023-01-15', '2024-01-15',
-            '0-150mm', '0.02mm', '0.02mm', 'Lab Calibração XYZ', 'mm', 'Armário A, Prateleira 2'
-        ];
+        let headers: string[] = [];
+        let exampleRow: string[] = [];
+        let fileName = 'modelo_importacao.xlsx';
+
+        if (context === 'estoque') {
+            headers = ['Código', 'Nome', 'Localização'];
+            exampleRow = ['EQ-001', 'Paquímetro Digital', 'Armário A, Prateleira 2'];
+            fileName = 'modelo_importacao_estoque.xlsx';
+        } else {
+            headers = [
+                'Código', 'Nome', 'Tipo', 'Setor', 'Modelo', 'Resolução',
+                'Capacidade', 'Responsável', 'Data Última Calibração', 'Data Vencimento',
+                'Faixa de Trabalho', 'Incerteza Admissível', 'Erro Máximo', 'Fornecedor', 'Unidade de Medida'
+            ];
+            exampleRow = [
+                'EQ-001', 'Paquímetro Digital', 'Dimensional', 'Produção', 'Mitutoyo 500-196-30', '0.01 mm',
+                '150 mm', 'João Silva', '2023-01-15', '2024-01-15',
+                '0-150mm', '0.02mm', '0.02mm', 'Lab Calibração XYZ', 'mm'
+            ];
+            fileName = 'modelo_importacao_equipamentos.xlsx';
+        }
 
         const worksheet = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Modelo Importação');
-        XLSX.writeFile(workbook, 'modelo_importacao_equipamentos.xlsx');
+        XLSX.writeFile(workbook, fileName);
     };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +55,6 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
 
         setFile(selectedFile);
 
-        // Ler o arquivo para preview
         const reader = new FileReader();
         reader.onload = (evt) => {
             try {
@@ -77,9 +87,9 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
             onClose();
             setFile(null);
             setPreviewData([]);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         } catch (error) {
             console.error(error);
-            // O erro já deve ser tratado pelo onImport ou toast lá
         } finally {
             setIsImporting(false);
         }
@@ -95,14 +105,15 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
         <Dialog open={isOpen} onOpenChange={(open) => !isImporting && onClose()}>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                    <DialogTitle>Importar Equipamentos</DialogTitle>
+                    <DialogTitle>
+                        Importar {context === 'estoque' ? 'Estoque' : 'Equipamentos'}
+                    </DialogTitle>
                     <DialogDescription>
-                        Faça upload de uma planilha Excel para importar equipamentos em massa.
+                        Faça upload de uma planilha Excel para importar {context === 'estoque' ? 'itens de estoque' : 'equipamentos'} em massa.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
-                    {/* Passo 1: Baixar Modelo */}
                     <div className="rounded-lg border p-4 bg-muted/20">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
@@ -118,7 +129,6 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
                         </div>
                     </div>
 
-                    {/* Passo 2: Upload */}
                     <div className="space-y-2">
                         <h4 className="text-sm font-medium">2. Selecione o arquivo preenchido</h4>
                         {!file ? (
@@ -161,17 +171,24 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
                         />
                     </div>
 
-                    {/* Alertas */}
                     {previewData.length > 0 && (
                         <div className="rounded-md bg-blue-50 p-3 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 flex gap-2 items-start">
                             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                             <div>
                                 <p className="font-medium">Informações Importantes:</p>
-                                <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>Novos <strong>Setores</strong> e <strong>Tipos</strong> serão criados automaticamente.</li>
-                                    <li>Equipamentos com <strong>Código</strong> já existente serão ignorados (não duplicam).</li>
-                                    <li>Datas devem estar no formato <code>AAAA-MM-DD</code> ou serem células de data do Excel.</li>
-                                </ul>
+                                {context === 'estoque' ? (
+                                    <ul className="list-disc list-inside mt-1 space-y-1">
+                                        <li>O campo <strong>Código</strong> deve existir no cadastro mestre.</li>
+                                        <li>A <strong>Localização</strong> será atualizada para o valor da planilha.</li>
+                                        <li>Os itens serão movidos automaticamente para o status <strong>Estoque</strong>.</li>
+                                    </ul>
+                                ) : (
+                                    <ul className="list-disc list-inside mt-1 space-y-1">
+                                        <li>Novos <strong>Setores</strong> e <strong>Tipos</strong> serão criados automaticamente.</li>
+                                        <li>Equipamentos com <strong>Código</strong> já existente serão ignorados.</li>
+                                        <li>Datas devem estar no formato <code>AAAA-MM-DD</code> ou no formato de data do Excel.</li>
+                                    </ul>
+                                )}
                             </div>
                         </div>
                     )}
