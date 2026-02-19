@@ -75,7 +75,6 @@ export async function POST(
             );
         }
 
-        const { id } = await params;
         const body = await request.json() as any; // TODO: strict type
 
         // Verificar se equipamento existe

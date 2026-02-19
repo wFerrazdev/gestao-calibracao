@@ -67,7 +67,6 @@ export async function PATCH(
             );
         }
 
-        const { id } = await params;
         const body = await request.json();
 
         // Verificar se equipamento existe
@@ -164,7 +163,6 @@ export async function DELETE(
             );
         }
 
-        const { id } = params;
 
         // Verificar se existe
         const existing = await prisma.equipment.findUnique({
