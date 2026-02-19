@@ -50,6 +50,9 @@ export function DonutChartPremium({ data }: DonutChartProps) {
                                 <Tooltip
                                     content={<PremiumTooltip />}
                                     cursor={false}
+                                    wrapperStyle={{ pointerEvents: 'none', zIndex: 100 }}
+                                    position={{ x: 240, y: 0 }}
+                                    allowEscapeViewBox={{ x: true, y: true }}
                                 />
                                 <Pie
                                     data={formattedData}

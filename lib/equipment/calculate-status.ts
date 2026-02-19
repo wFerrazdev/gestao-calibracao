@@ -25,11 +25,11 @@ export function calculateEquipmentStatus(
         };
     }
 
-    // Se tem regra mas não tem data de calibração, está vencido (precisa calibrar para começar a contar)
+    // Se tem regra mas não tem data de calibração, deve ser REFERENCIA até que a primeira calibração ocorra
     if (!lastCalibrationDate) {
         return {
             dueDate: null,
-            status: 'VENCIDO',
+            status: 'REFERENCIA',
             daysRemaining: null,
         };
     }

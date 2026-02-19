@@ -76,10 +76,10 @@ export async function POST(request: Request) {
                         continue;
                     }
 
-                    // Resolver Setor "Geral" para novos itens se não houver lógica de setor no template de estoque
-                    let dbSector = await prisma.sector.findFirst({ where: { name: 'Geral' } });
+                    // Resolver Setor "Estoque" para novos itens se não houver lógica de setor no template de estoque
+                    let dbSector = await prisma.sector.findFirst({ where: { name: 'Estoque' } });
                     if (!dbSector) {
-                        dbSector = await prisma.sector.create({ data: { name: 'Geral', code: 'GERAL' } });
+                        dbSector = await prisma.sector.create({ data: { name: 'Estoque', code: 'ESTOQUE' } });
                     }
 
                     // Resolver Tipo
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
                             workingRange: workingRange,
                             unit: unit,
                             usageStatus: 'IN_STOCK',
-                            status: 'VENCIDO' // Padrão para novos sem data de calibração
+                            status: 'REFERENCIA' // Padrão para novos sem data de calibração
                         }
                     });
                     updatedCount++;

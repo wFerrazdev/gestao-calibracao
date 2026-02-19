@@ -90,9 +90,9 @@ export async function POST(request: Request) {
                 }
 
                 if (!sectorId) {
-                    let generalSector = await prisma.sector.findFirst({ where: { name: 'Geral' } });
-                    if (!generalSector) generalSector = await prisma.sector.create({ data: { name: 'Geral', code: 'GERAL' } });
-                    sectorId = generalSector.id;
+                    let inventorySector = await prisma.sector.findFirst({ where: { name: 'Estoque' } });
+                    if (!inventorySector) inventorySector = await prisma.sector.create({ data: { name: 'Estoque', code: 'ESTOQUE' } });
+                    sectorId = inventorySector.id;
                 }
 
                 if (!typeId) {
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
                         unit: item['Unidade de Medida'] ? String(item['Unidade de Medida']) : null,
                         lastCalibrationDate,
                         dueDate,
-                        status: 'VENCIDO',
+                        status: 'REFERENCIA',
                         sectorId,
                         equipmentTypeId: typeId,
                         usageStatus: 'IN_USE' // Equipamentos novos entram em uso por padrão

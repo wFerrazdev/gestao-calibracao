@@ -64,7 +64,7 @@ export async function GET(request: Request) {
             const sector = sectors.find(s => s.id === item.sectorId);
             return {
                 sectorId: item.sectorId,
-                sectorName: sector?.name || 'Desconhecido',
+                sectorName: sector?.name || 'Estoque',
                 count: item._count,
             };
         });
