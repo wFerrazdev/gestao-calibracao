@@ -260,7 +260,7 @@ export function EquipmentDetailsModal({ equipment, isOpen, onClose, onSchedule, 
                         <div className="mt-8 flex flex-col sm:flex-row gap-3 pt-4 border-t">
                             {canEdit && (
                                 <>
-                                    <Button variant="outline" className="flex-1" onClick={() => window.open(`/print/label/${equipment.id}`, '_blank')}>
+                                    <Button variant="outline" className="flex-1" onClick={handlePrintLabel}>
                                         <Printer className="mr-2 h-4 w-4" />
                                         Etiqueta
                                     </Button>

@@ -1,0 +1,96 @@
+/* CSS Dedicado para Impressão de Etiquetas 50x25mm */
+
+@page {
+    size: 50mm 25mm;
+    margin: 0;
+}
+
+@media print {
+
+    /* Esconde tudo o que não deve sair na impressora */
+    header,
+    footer,
+    nav,
+    aside,
+    button,
+    .print-hidden {
+        display: none !important;
+    }
+
+    html,
+    body {
+        width: 50mm;
+        height: 25mm;
+        margin: 0;
+        padding: 0;
+        background: white;
+        overflow: hidden;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* Garante que o conteúdo ocupe toda a área e force o salto de página */
+    .label-page {
+        width: 50mm;
+        height: 25mm;
+        page-break-after: always;
+        page-break-inside: avoid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Ajuste de contraste para Zebra */
+    * {
+        color: black !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    .bg-black {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    /* Remove o cinza dos cards se houver */
+    .bg-white {
+        background-color: white !important;
+    }
+}
+
+/* Estilo para tela (Preview) */
+.label-preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 40px;
+    background: #f4f4f5;
+    min-height: 100vh;
+    align-items: center;
+}
+
+.label-preview-card {
+    background: white;
+    width: 50mm;
+    height: 25mm;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    border: 1px solid #e4e4e7;
+    overflow: hidden;
+}
+
+@media print {
+    .label-preview-container {
+        padding: 0;
+        background: white;
+        display: block;
+    }
+
+    .label-preview-card {
+        box-shadow: none;
+        border: none;
+        width: 50mm;
+        height: 25mm;
+    }
+}

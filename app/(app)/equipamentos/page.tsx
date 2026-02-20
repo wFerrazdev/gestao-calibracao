@@ -24,7 +24,8 @@ import {
     Tag,
     Layers,
     Type,
-    MoreHorizontal
+    MoreHorizontal,
+    Printer
 } from 'lucide-react';
 import Link from 'next/link';
 import { EquipmentModal } from './components/equipment-modal';
@@ -180,7 +181,7 @@ export default function EquipamentosPage() {
     const [showBulkMoveToStockModal, setShowBulkMoveToStockModal] = useState(false);
 
     const toggleSelectAll = () => {
-        if (selectedItems.size === equipment.length) {
+        if (selectedItems.size === equipment.length && equipment.length > 0) {
             setSelectedItems(new Set());
         } else {
             setSelectedItems(new Set(equipment.map(e => e.id)));
@@ -195,6 +196,12 @@ export default function EquipamentosPage() {
             newSelected.add(id);
         }
         setSelectedItems(newSelected);
+    };
+
+    const handlePrintSelected = () => {
+        if (selectedItems.size === 0) return;
+        const ids = Array.from(selectedItems).join(',');
+        window.open(`/print/labels?ids=${ids}`, '_blank');
     };
 
     const handleDeleteClick = (id: string, e: React.MouseEvent) => {
@@ -498,13 +505,12 @@ export default function EquipamentosPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex h-full flex-col space-y-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">Equipamentos</h1>
-                    <p className="text-sm text-muted-foreground">
-                        {total} equipamentos cadastrados
+                    <h1 className="text-2xl font-bold tracking-tight">Equipamentos</h1>
+                    <p className="text-muted-foreground">
+                        Gestão de todos os equipamentos em uso na planta.
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -586,6 +592,15 @@ export default function EquipamentosPage() {
                         {selectedItems.size} selecionado{selectedItems.size !== 1 ? 's' : ''}
                     </span>
                     <div className="flex gap-2">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handlePrintSelected}
+                            className="bg-primary text-white hover:bg-primary/90"
+                        >
+                            <Printer className="mr-2 h-4 w-4" />
+                            Imprimir Etiquetas
+                        </Button>
                         {permissions?.canEditEquipment && (
                             <>
                                 <Button variant="secondary" size="sm" onClick={() => setShowBulkMoveToStockModal(true)}>
