@@ -27,24 +27,24 @@ export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos
 
         if (context === 'estoque') {
             headers = [
-                'Código', 'Nome', 'Tipo', 'Localização', 'Modelo', 'Resolução',
-                'Capacidade', 'Responsável', 'Faixa de Trabalho', 'Unidade de Medida'
+                'CÓDIGO', 'NOME', 'TIPO', 'LOCALIZAÇÃO', 'MODELO', 'RESOLUÇÃO',
+                'CAPACIDADE', 'RESPONSÁVEL', 'FAIXA DE TRABALHO', 'UNIDADE DE MEDIDA'
             ];
             exampleRow = [
-                'EQ-001', 'Paquímetro Digital', 'Dimensional', 'Armário A, Prateleira 2', 'Mitutoyo 500-196-30', '0.01 mm',
-                '150 mm', 'João Silva', '0-150mm', 'mm'
+                'EQ-001', 'PAQUÍMETRO DIGITAL', 'PAQUÍMETRO', 'ARMÁRIO A, PRATELEIRA 2', 'MITUTOYO 500-196-30', '0.01 MM',
+                '150 MM', 'JOÃO SILVA', '0-150MM', 'MM'
             ];
             fileName = 'modelo_importacao_estoque.xlsx';
         } else {
             headers = [
-                'Código', 'Nome', 'Tipo', 'Setor', 'Modelo', 'Resolução',
-                'Capacidade', 'Responsável', 'Data Última Calibração', 'Data Vencimento',
-                'Faixa de Trabalho', 'Incerteza Admissível', 'Erro Máximo', 'Fornecedor', 'Unidade de Medida'
+                'CÓDIGO', 'NOME', 'TIPO', 'SETOR', 'MODELO', 'RESOLUÇÃO',
+                'CAPACIDADE', 'RESPONSÁVEL', 'DATA ÚLTIMA CALIBRAÇÃO', 'DATA VENCIMENTO',
+                'FAIXA DE TRABALHO', 'INCERTEZA ADMISSÍVEL', 'ERRO MÁXIMO', 'FORNECEDOR', 'UNIDADE DE MEDIDA'
             ];
             exampleRow = [
-                'EQ-001', 'Paquímetro Digital', 'Dimensional', 'Produção', 'Mitutoyo 500-196-30', '0.01 mm',
-                '150 mm', 'João Silva', '2023-01-15', '2024-01-15',
-                '0-150mm', '0.02mm', '0.02mm', 'Lab Calibração XYZ', 'mm'
+                'EQ-001', 'PAQUÍMETRO DIGITAL', 'PAQUÍMETRO', 'PRODUÇÃO', 'MITUTOYO 500-196-30', '0.01 MM',
+                '150 MM', 'JOÃO SILVA', '2023-01-15', '2024-01-15',
+                '0-150MM', '0.02MM', '0.02MM', 'LAB CALIBRAÇÃO XYZ', 'MM'
             ];
             fileName = 'modelo_importacao_equipamentos.xlsx';
         }
@@ -186,13 +186,15 @@ export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos
                                     <ul className="list-disc list-inside mt-1 space-y-1">
                                         <li>O campo <strong>Código</strong> deve existir no cadastro mestre.</li>
                                         <li>A <strong>Localização</strong> será atualizada para o valor da planilha.</li>
+                                        <li>O <strong>Tipo</strong> deve já estar cadastrado no sistema.</li>
                                         <li>Os itens serão movidos automaticamente para o status <strong>Estoque</strong>.</li>
                                     </ul>
                                 ) : (
                                     <ul className="list-disc list-inside mt-1 space-y-1">
-                                        <li>Novos <strong>Setores</strong> e <strong>Tipos</strong> serão criados automaticamente.</li>
+                                        <li><strong>Setores</strong> e <strong>Tipos</strong> devem já estar cadastrados no sistema.</li>
                                         <li>Equipamentos com <strong>Código</strong> já existente serão ignorados.</li>
                                         <li>Datas devem estar no formato <code>AAAA-MM-DD</code> ou no formato de data do Excel.</li>
+                                        <li>Todos os dados serão salvos em <strong>MAIÚSCULO</strong> automaticamente.</li>
                                     </ul>
                                 )}
                             </div>

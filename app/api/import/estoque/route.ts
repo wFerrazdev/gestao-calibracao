@@ -21,20 +21,33 @@ export async function POST(request: Request) {
 
         for (const [index, item] of items.entries()) {
             try {
-                const code = item['Código'] ? String(item['Código']).trim() : null;
-                const name = item['Nome'] ? String(item['Nome']).trim() : null;
-                const typeName = item['Tipo'] ? String(item['Tipo']).trim() : null;
-                const location = item['Localização'] ? String(item['Localização']).trim() : null;
-                const model = item['Modelo'] ? String(item['Modelo']).trim() : null;
-                const resolution = item['Resolução'] ? String(item['Resolução']).trim() : null;
-                const capacity = item['Capacidade'] ? String(item['Capacidade']).trim() : null;
-                const responsible = item['Responsável'] ? String(item['Responsável']).trim() : null;
-                const workingRange = item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']).trim() : null;
-                const unit = item['Unidade de Medida'] ? String(item['Unidade de Medida']).trim() : null;
+                const code = item['Código'] ? String(item['Código']).trim().toUpperCase() : null;
+                const name = item['Nome'] ? String(item['Nome']).trim().toUpperCase() : null;
+                const typeName = item['Tipo'] ? String(item['Tipo']).trim().toUpperCase() : null;
+                const location = item['Localização'] ? String(item['Localização']).trim().toUpperCase() : null;
+                const model = item['Modelo'] ? String(item['Modelo']).trim().toUpperCase() : null;
+                const resolution = item['Resolução'] ? String(item['Resolução']).trim().toUpperCase() : null;
+                const capacity = item['Capacidade'] ? String(item['Capacidade']).trim().toUpperCase() : null;
+                const responsible = item['Responsável'] ? String(item['Responsável']).trim().toUpperCase() : null;
+                const workingRange = item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']).trim().toUpperCase() : null;
+                const unit = item['Unidade de Medida'] ? String(item['Unidade de Medida']).trim().toUpperCase() : null;
 
                 if (!code) {
                     errors.push(`Linha ${index + 2}: Código ausente.`);
                     continue;
+                }
+
+                // Resolver Tipo de forma Estrita
+                let equipmentTypeId = undefined;
+                if (typeName) {
+                    const dbType = await prisma.equipmentType.findFirst({
+                        where: { name: { equals: typeName, mode: 'insensitive' } }
+                    });
+                    if (!dbType) {
+                        errors.push(`Linha ${index + 2}: Tipo "${typeName}" não encontrado.`);
+                        continue;
+                    }
+                    equipmentTypeId = dbType.id;
                 }
 
                 // Buscar equipamento no cadastro mestre
@@ -44,20 +57,11 @@ export async function POST(request: Request) {
 
                 if (equipment) {
                     // Atualizar equipamento existente
-                    let equipmentTypeId = equipment.equipmentTypeId;
-                    if (typeName) {
-                        let dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
-                        if (!dbType) {
-                            dbType = await prisma.equipmentType.create({ data: { name: typeName } });
-                        }
-                        equipmentTypeId = dbType.id;
-                    }
-
                     await prisma.equipment.update({
                         where: { id: equipment.id },
                         data: {
                             name: name || equipment.name,
-                            equipmentTypeId,
+                            equipmentTypeId: equipmentTypeId || equipment.equipmentTypeId,
                             location: location || equipment.location,
                             manufacturerModel: model || equipment.manufacturerModel,
                             resolution: resolution || equipment.resolution,
@@ -76,33 +80,28 @@ export async function POST(request: Request) {
                         continue;
                     }
 
-                    // Resolver Setor "Estoque" para novos itens se não houver lógica de setor no template de estoque
-                    let dbSector = await prisma.sector.findFirst({ where: { name: 'Estoque' } });
-                    if (!dbSector) {
-                        dbSector = await prisma.sector.create({ data: { name: 'Estoque', code: 'ESTOQUE' } });
+                    if (!equipmentTypeId) {
+                        errors.push(`Linha ${index + 2}: Equipamento novo precisa de um Tipo válido.`);
+                        continue;
                     }
 
-                    // Resolver Tipo
-                    let typeId;
-                    if (typeName) {
-                        let dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
-                        if (!dbType) {
-                            dbType = await prisma.equipmentType.create({ data: { name: typeName } });
-                        }
-                        typeId = dbType.id;
-                    } else {
-                        let dbType = await prisma.equipmentType.findUnique({ where: { name: 'Outros' } });
-                        if (!dbType) {
-                            dbType = await prisma.equipmentType.create({ data: { name: 'Outros' } });
-                        }
-                        typeId = dbType.id;
+                    // Resolver Setor "Estoque"
+                    let dbSector = await prisma.sector.findFirst({
+                        where: { name: { equals: 'ESTOQUE', mode: 'insensitive' } }
+                    });
+
+                    if (!dbSector) {
+                        // Se não existe o setor ESTOQUE, criamos ele (é um setor de sistema)
+                        dbSector = await prisma.sector.create({
+                            data: { name: 'ESTOQUE', code: 'ESTOQUE' }
+                        });
                     }
 
                     await prisma.equipment.create({
                         data: {
                             code,
                             name,
-                            equipmentTypeId: typeId,
+                            equipmentTypeId,
                             sectorId: dbSector.id,
                             location: location,
                             manufacturerModel: model,
@@ -112,7 +111,7 @@ export async function POST(request: Request) {
                             workingRange: workingRange,
                             unit: unit,
                             usageStatus: 'IN_STOCK',
-                            status: 'REFERENCIA' // Padrão para novos sem data de calibração
+                            status: 'REFERENCIA'
                         }
                     });
                     updatedCount++;

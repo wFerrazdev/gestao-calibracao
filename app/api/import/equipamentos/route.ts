@@ -48,8 +48,11 @@ export async function POST(request: Request) {
                     continue;
                 }
 
-                const code = String(item['Código']).trim();
-                const name = String(item['Nome']).trim();
+                // Normalização para MAIÚSCULO
+                const code = String(item['Código']).trim().toUpperCase();
+                const name = String(item['Nome']).trim().toUpperCase();
+                const sectorName = item['Setor'] ? String(item['Setor']).trim().toUpperCase() : null;
+                const typeName = item['Tipo'] ? String(item['Tipo']).trim().toUpperCase() : null;
 
                 // Verificar duplicidade
                 const existing = await prisma.equipment.findUnique({
@@ -61,44 +64,47 @@ export async function POST(request: Request) {
                     continue;
                 }
 
-                // Resolver Relacionamentos (Setor e Tipo)
+                // Resolver Relacionamentos (Setor e Tipo) - AGORA ESTRITO
                 let sectorId = undefined;
-                let dbSector;
-                if (item['Setor']) {
-                    const sectorName = String(item['Setor']).trim();
-                    dbSector = await prisma.sector.findFirst({ where: { name: { equals: sectorName, mode: 'insensitive' } } });
+                if (sectorName) {
+                    const dbSector = await prisma.sector.findFirst({
+                        where: { name: { equals: sectorName, mode: 'insensitive' } }
+                    });
+
                     if (!dbSector) {
-                        dbSector = await prisma.sector.create({
-                            data: {
-                                name: sectorName,
-                                code: sectorName.toUpperCase().slice(0, 10).replace(/\s+/g, '_')
-                            }
-                        });
+                        errors.push(`Linha ${index + 2}: Setor "${sectorName}" não encontrado.`);
+                        skippedCount++;
+                        continue;
                     }
                     sectorId = dbSector.id;
                 }
 
-                let dbType;
                 let typeId = undefined;
-                if (item['Tipo']) {
-                    const typeName = String(item['Tipo']).trim();
-                    dbType = await prisma.equipmentType.findUnique({ where: { name: typeName } });
+                if (typeName) {
+                    const dbType = await prisma.equipmentType.findFirst({
+                        where: { name: { equals: typeName, mode: 'insensitive' } }
+                    });
+
                     if (!dbType) {
-                        dbType = await prisma.equipmentType.create({ data: { name: typeName } });
+                        errors.push(`Linha ${index + 2}: Tipo "${typeName}" não encontrado.`);
+                        skippedCount++;
+                        continue;
                     }
                     typeId = dbType.id;
                 }
 
+                // Se não informou setor ou tipo, não vamos criar automaticamente "Estoque" ou "Outros"
+                // conforme pedido de validação rígida.
                 if (!sectorId) {
-                    let inventorySector = await prisma.sector.findFirst({ where: { name: 'Estoque' } });
-                    if (!inventorySector) inventorySector = await prisma.sector.create({ data: { name: 'Estoque', code: 'ESTOQUE' } });
-                    sectorId = inventorySector.id;
+                    errors.push(`Linha ${index + 2}: Setor obrigatório não informado.`);
+                    skippedCount++;
+                    continue;
                 }
 
                 if (!typeId) {
-                    let generalType = await prisma.equipmentType.findUnique({ where: { name: 'Outros' } });
-                    if (!generalType) generalType = await prisma.equipmentType.create({ data: { name: 'Outros' } });
-                    typeId = generalType.id;
+                    errors.push(`Linha ${index + 2}: Tipo de equipamento obrigatório não informado.`);
+                    skippedCount++;
+                    continue;
                 }
 
                 const lastCalibrationDate = parseExcelDate(item['Data Última Calibração']);
@@ -108,21 +114,21 @@ export async function POST(request: Request) {
                     data: {
                         code,
                         name,
-                        manufacturerModel: item['Modelo'] ? String(item['Modelo']) : null,
-                        resolution: item['Resolução'] ? String(item['Resolução']) : null,
-                        capacity: item['Capacidade'] ? String(item['Capacidade']) : null,
-                        responsible: item['Responsável'] ? String(item['Responsável']) : null,
-                        workingRange: item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']) : null,
-                        admissibleUncertainty: item['Incerteza Admissível'] ? String(item['Incerteza Admissível']) : null,
-                        maxError: item['Erro Máximo'] ? String(item['Erro Máximo']) : null,
-                        provider: item['Fornecedor'] ? String(item['Fornecedor']) : null,
-                        unit: item['Unidade de Medida'] ? String(item['Unidade de Medida']) : null,
+                        manufacturerModel: item['Modelo'] ? String(item['Modelo']).trim().toUpperCase() : null,
+                        resolution: item['Resolução'] ? String(item['Resolução']).trim().toUpperCase() : null,
+                        capacity: item['Capacidade'] ? String(item['Capacidade']).trim().toUpperCase() : null,
+                        responsible: item['Responsável'] ? String(item['Responsável']).trim().toUpperCase() : null,
+                        workingRange: item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']).trim().toUpperCase() : null,
+                        admissibleUncertainty: item['Incerteza Admissível'] ? String(item['Incerteza Admissível']).trim().toUpperCase() : null,
+                        maxError: item['Erro Máximo'] ? String(item['Erro Máximo']).trim().toUpperCase() : null,
+                        provider: item['Fornecedor'] ? String(item['Fornecedor']).trim().toUpperCase() : null,
+                        unit: item['Unidade de Medida'] ? String(item['Unidade de Medida']).trim().toUpperCase() : null,
                         lastCalibrationDate,
                         dueDate,
                         status: 'REFERENCIA',
                         sectorId,
                         equipmentTypeId: typeId,
-                        usageStatus: 'IN_USE' // Equipamentos novos entram em uso por padrão
+                        usageStatus: 'IN_USE'
                     }
                 });
 
