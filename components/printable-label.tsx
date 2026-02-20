@@ -29,7 +29,7 @@ export function PrintableLabel({ equipment }: PrintableLabelProps) {
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4 print:bg-white print:p-0 print:block">
             <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 print:shadow-none print:border-none print:p-0 max-w-[500px] w-full print:w-auto print:max-w-none">
                 <div className="flex items-center justify-between mb-8 print:hidden">
-                    <h1 className="text-xl font-bold">Visualização de Etiqueta (50x25mm)</h1>
+                    <h1 className="text-xl font-bold text-gray-900">Visualização de Etiqueta (50x25mm)</h1>
                     <Button onClick={() => window.print()}>
                         <Printer className="mr-2 h-4 w-4" />
                         Imprimir
@@ -60,16 +60,16 @@ export function PrintableLabel({ equipment }: PrintableLabelProps) {
                                     {equipment.code}
                                 </p>
                             </div>
-                            <h2 className="font-bold text-[8px] leading-tight line-clamp-2 mt-1 uppercase">
+                            <h2 className="font-bold text-[8px] leading-tight line-clamp-2 mt-1 uppercase text-black">
                                 {equipment.name}
                             </h2>
                         </div>
 
                         <div className="flex items-end justify-between mt-auto">
-                            <span className="text-[6px] text-gray-400 font-bold uppercase tracking-wider">
+                            <span className="text-[6px] text-gray-500 font-bold uppercase tracking-wider">
                                 Calibração
                             </span>
-                            <img src="/gtpequeno.png" alt="Gatron" className="h-[7mm] object-contain opacity-90" />
+                            <img src="/logoazul.png" alt="Gatron" className="h-[6mm] object-contain" />
                         </div>
                     </div>
                 </div>

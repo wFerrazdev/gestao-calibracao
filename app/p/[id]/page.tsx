@@ -81,7 +81,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                     </div>
 
                     <div className="pt-6 text-center">
-                        <img src="/gtpequeno.png" alt="Gatron Logo" className="h-6 mx-auto opacity-50" />
+                        <img src="/logoazul.png" alt="Gatron Logo" className="h-6 mx-auto" />
                         <p className="text-[10px] text-muted-foreground mt-2">© Gestão de Calibração Gatron</p>
                     </div>
                 </CardContent>
