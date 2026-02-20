@@ -23,7 +23,7 @@ export function PrintableLabel({ equipment }: PrintableLabelProps) {
         }
     }, []);
 
-    const qrValue = origin ? `${origin}/equipamentos/${equipment.id}` : '';
+    const qrValue = origin ? `${origin}/p/${equipment.id}` : '';
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4 print:bg-white print:p-0 print:block">
@@ -36,29 +36,41 @@ export function PrintableLabel({ equipment }: PrintableLabelProps) {
                     </Button>
                 </div>
 
-                {/* Área da Etiqueta: 50mm x 25mm */}
+                {/* Área da Etiqueta: 50mm x 25mm para Zebra */}
                 <div
-                    className="border border-gray-300 print:border-none flex items-center justify-between p-1 gap-1 bg-white print:fixed print:top-0 print:left-0 text-black overflow-hidden"
+                    className="border border-gray-300 print:border-none flex items-center p-1.5 gap-2 bg-white print:fixed print:top-0 print:left-0 text-black overflow-hidden"
                     style={{ width: '50mm', height: '25mm' }}
                 >
-                    {/* QR Code */}
-                    <div className="flex-shrink-0 flex items-center justify-center h-full aspect-square bg-white">
+                    {/* QR Code (Esquerda) */}
+                    <div className="flex-shrink-0 flex items-center justify-center bg-white">
                         {qrValue && (
                             <QRCodeGenerator
                                 value={qrValue}
-                                size={70} // Aprox 18mm
+                                size={68} // Aprox 18mm - Compacto p/ 25mm de altura
                                 className="!p-0"
                             />
                         )}
                     </div>
 
-                    {/* Info */}
-                    <div className="flex flex-col justify-between flex-grow h-full py-0.5 overflow-hidden">
-                        <div>
-                            <h2 className="font-bold text-[8px] leading-tight line-clamp-2 w-full">{equipment.name}</h2>
-                            <p className="font-mono text-[10px] font-black leading-none mt-0.5">{equipment.code}</p>
+                    {/* Conteúdo (Direita) */}
+                    <div className="flex flex-col justify-between flex-grow h-full py-0.5 overflow-hidden border-l border-gray-100 pl-2">
+                        <div className="flex flex-col gap-0.5">
+                            <div className="flex justify-between items-start">
+                                <p className="font-mono text-[10px] font-black leading-none bg-black text-white px-1 py-0.5 rounded-sm">
+                                    {equipment.code}
+                                </p>
+                            </div>
+                            <h2 className="font-bold text-[8px] leading-tight line-clamp-2 mt-1 uppercase">
+                                {equipment.name}
+                            </h2>
                         </div>
-                        <p className="text-[6px] text-gray-600 uppercase tracking-tighter leading-none">Gestão Calibração</p>
+
+                        <div className="flex items-end justify-between mt-auto">
+                            <span className="text-[6px] text-gray-400 font-bold uppercase tracking-wider">
+                                Calibração
+                            </span>
+                            <img src="/gtpequeno.png" alt="Gatron" className="h-[7mm] object-contain opacity-90" />
+                        </div>
                     </div>
                 </div>
 

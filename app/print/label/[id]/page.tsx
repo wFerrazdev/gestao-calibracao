@@ -11,6 +11,10 @@ export default async function PrintLabelPage({ params }: { params: Promise<{ id:
             id: true,
             name: true,
             code: true,
+            status: true,
+            dueDate: true,
+            Sector: { select: { name: true } },
+            EquipmentType: { select: { name: true } },
         }
     });
 
