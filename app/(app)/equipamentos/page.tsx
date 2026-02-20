@@ -439,11 +439,19 @@ export default function EquipamentosPage() {
             if (res.ok) {
                 const result = await res.json();
                 if (result.errors && result.errors.length > 0) {
-                    toast.warning(`Importação concluída com ${result.errors.length} erros.`);
+                    toast.error(`Importação com problemas`, {
+                        description: `${result.errors.length} erro(s) encontrados. Ex: ${result.errors[0]}`,
+                        duration: 6000,
+                    });
                     console.warn('Erros de importação:', result.errors);
-                } else {
-                    toast.success(`${result.created} equipamentos importados.`);
                 }
+
+                if (result.created > 0) {
+                    toast.success(`${result.created} equipamentos importados.`);
+                } else if (!result.errors || result.errors.length === 0) {
+                    toast.info('Nenhum equipamento novo importado (podem ser duplicados).');
+                }
+
                 fetchEquipment();
             } else {
                 const error = await res.json();

@@ -349,11 +349,19 @@ export default function EstoquePage() {
             if (res.ok) {
                 const result = await res.json();
                 if (result.errors && result.errors.length > 0) {
-                    toast.warning(`Importação concluída com ${result.errors.length} erros.`);
-                    console.warn('Erros de importaçãoestoque:', result.errors);
-                } else {
-                    toast.success(`${result.updated} itens de estoque atualizados.`);
+                    toast.error(`Importação com problemas`, {
+                        description: `${result.errors.length} erro(s) encontrados. Ex: ${result.errors[0]}`,
+                        duration: 6000,
+                    });
+                    console.warn('Erros de importação estoque:', result.errors);
                 }
+
+                if (result.updated > 0) {
+                    toast.success(`${result.updated} itens de estoque processados.`);
+                } else if (!result.errors || result.errors.length === 0) {
+                    toast.info('Nenhum dado novo processado na importação.');
+                }
+
                 fetchEquipment();
             } else {
                 const error = await res.json();

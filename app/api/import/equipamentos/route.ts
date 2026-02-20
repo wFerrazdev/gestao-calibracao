@@ -42,17 +42,23 @@ export async function POST(request: Request) {
 
         for (const [index, item] of items.entries()) {
             try {
-                if (!item['Código'] || !item['Nome']) {
-                    errors.push(`Linha ${index + 2}: Código ou Nome ausente.`);
+                // Mapeamento para chaves em MAIÚSCULO conforme o template
+                const codeRaw = item['CÓDIGO'] || item['Código'];
+                const nameRaw = item['NOME'] || item['Nome'];
+                const sectorRaw = item['SETOR'] || item['Setor'];
+                const typeRaw = item['TIPO'] || item['Tipo'];
+
+                if (!codeRaw || !nameRaw) {
+                    errors.push(`Linha ${index + 2}: CÓDIGO ou NOME ausente.`);
                     skippedCount++;
                     continue;
                 }
 
                 // Normalização para MAIÚSCULO
-                const code = String(item['Código']).trim().toUpperCase();
-                const name = String(item['Nome']).trim().toUpperCase();
-                const sectorName = item['Setor'] ? String(item['Setor']).trim().toUpperCase() : null;
-                const typeName = item['Tipo'] ? String(item['Tipo']).trim().toUpperCase() : null;
+                const code = String(codeRaw).trim().toUpperCase();
+                const name = String(nameRaw).trim().toUpperCase();
+                const sectorName = sectorRaw ? String(sectorRaw).trim().toUpperCase() : null;
+                const typeName = typeRaw ? String(typeRaw).trim().toUpperCase() : null;
 
                 // Verificar duplicidade
                 const existing = await prisma.equipment.findUnique({
@@ -60,6 +66,7 @@ export async function POST(request: Request) {
                 });
 
                 if (existing) {
+                    errors.push(`Linha ${index + 2}: Equipamento com código "${code}" já cadastrado.`);
                     skippedCount++;
                     continue;
                 }
@@ -93,8 +100,6 @@ export async function POST(request: Request) {
                     typeId = dbType.id;
                 }
 
-                // Se não informou setor ou tipo, não vamos criar automaticamente "Estoque" ou "Outros"
-                // conforme pedido de validação rígida.
                 if (!sectorId) {
                     errors.push(`Linha ${index + 2}: Setor obrigatório não informado.`);
                     skippedCount++;
@@ -107,22 +112,22 @@ export async function POST(request: Request) {
                     continue;
                 }
 
-                const lastCalibrationDate = parseExcelDate(item['Data Última Calibração']);
-                const dueDate = parseExcelDate(item['Data Vencimento']);
+                const lastCalibrationDate = parseExcelDate(item['DATA ÚLTIMA CALIBRAÇÃO'] || item['Data Última Calibração']);
+                const dueDate = parseExcelDate(item['DATA VENCIMENTO'] || item['Data Vencimento']);
 
                 await prisma.equipment.create({
                     data: {
                         code,
                         name,
-                        manufacturerModel: item['Modelo'] ? String(item['Modelo']).trim().toUpperCase() : null,
-                        resolution: item['Resolução'] ? String(item['Resolução']).trim().toUpperCase() : null,
-                        capacity: item['Capacidade'] ? String(item['Capacidade']).trim().toUpperCase() : null,
-                        responsible: item['Responsável'] ? String(item['Responsável']).trim().toUpperCase() : null,
-                        workingRange: item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']).trim().toUpperCase() : null,
-                        admissibleUncertainty: item['Incerteza Admissível'] ? String(item['Incerteza Admissível']).trim().toUpperCase() : null,
-                        maxError: item['Erro Máximo'] ? String(item['Erro Máximo']).trim().toUpperCase() : null,
-                        provider: item['Fornecedor'] ? String(item['Fornecedor']).trim().toUpperCase() : null,
-                        unit: item['Unidade de Medida'] ? String(item['Unidade de Medida']).trim().toUpperCase() : null,
+                        manufacturerModel: (item['MODELO'] || item['Modelo']) ? String(item['MODELO'] || item['Modelo']).trim().toUpperCase() : null,
+                        resolution: (item['RESOLUÇÃO'] || item['Resolução']) ? String(item['RESOLUÇÃO'] || item['Resolução']).trim().toUpperCase() : null,
+                        capacity: (item['CAPACIDADE'] || item['Capacidade']) ? String(item['CAPACIDADE'] || item['Capacidade']).trim().toUpperCase() : null,
+                        responsible: (item['RESPONSÁVEL'] || item['Responsável']) ? String(item['RESPONSÁVEL'] || item['Responsável']).trim().toUpperCase() : null,
+                        workingRange: (item['FAIXA DE TRABALHO'] || item['Faixa de Trabalho']) ? String(item['FAIXA DE TRABALHO'] || item['Faixa de Trabalho']).trim().toUpperCase() : null,
+                        admissibleUncertainty: (item['INCERTEZA ADMISSÍVEL'] || item['Incerteza Admissível']) ? String(item['INCERTEZA ADMISSÍVEL'] || item['Incerteza Admissível']).trim().toUpperCase() : null,
+                        maxError: (item['ERRO MÁXIMO'] || item['Erro Máximo']) ? String(item['ERRO MÁXIMO'] || item['Erro Máximo']).trim().toUpperCase() : null,
+                        provider: (item['FORNECEDOR'] || item['Fornecedor']) ? String(item['FORNECEDOR'] || item['Fornecedor']).trim().toUpperCase() : null,
+                        unit: (item['UNIDADE DE MEDIDA'] || item['Unidade de Medida']) ? String(item['UNIDADE DE MEDIDA'] || item['Unidade de Medida']).trim().toUpperCase() : null,
                         lastCalibrationDate,
                         dueDate,
                         status: 'REFERENCIA',

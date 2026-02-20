@@ -21,19 +21,31 @@ export async function POST(request: Request) {
 
         for (const [index, item] of items.entries()) {
             try {
-                const code = item['Código'] ? String(item['Código']).trim().toUpperCase() : null;
-                const name = item['Nome'] ? String(item['Nome']).trim().toUpperCase() : null;
-                const typeName = item['Tipo'] ? String(item['Tipo']).trim().toUpperCase() : null;
-                const location = item['Localização'] ? String(item['Localização']).trim().toUpperCase() : null;
-                const model = item['Modelo'] ? String(item['Modelo']).trim().toUpperCase() : null;
-                const resolution = item['Resolução'] ? String(item['Resolução']).trim().toUpperCase() : null;
-                const capacity = item['Capacidade'] ? String(item['Capacidade']).trim().toUpperCase() : null;
-                const responsible = item['Responsável'] ? String(item['Responsável']).trim().toUpperCase() : null;
-                const workingRange = item['Faixa de Trabalho'] ? String(item['Faixa de Trabalho']).trim().toUpperCase() : null;
-                const unit = item['Unidade de Medida'] ? String(item['Unidade de Medida']).trim().toUpperCase() : null;
+                // Mapeamento para chaves em MAIÚSCULO conforme o template
+                const codeRaw = item['CÓDIGO'] || item['Código'];
+                const nameRaw = item['NOME'] || item['Nome'];
+                const typeRaw = item['TIPO'] || item['Tipo'];
+                const locationRaw = item['LOCALIZAÇÃO'] || item['Localização'];
+                const modelRaw = item['MODELO'] || item['Modelo'];
+                const resolutionRaw = item['RESOLUÇÃO'] || item['Resolução'];
+                const capacityRaw = item['CAPACIDADE'] || item['Capacidade'];
+                const responsibleRaw = item['RESPONSÁVEL'] || item['Responsável'];
+                const workingRangeRaw = item['FAIXA DE TRABALHO'] || item['Faixa de Trabalho'];
+                const unitRaw = item['UNIDADE DE MEDIDA'] || item['Unidade de Medida'];
+
+                const code = codeRaw ? String(codeRaw).trim().toUpperCase() : null;
+                const name = nameRaw ? String(nameRaw).trim().toUpperCase() : null;
+                const typeName = typeRaw ? String(typeRaw).trim().toUpperCase() : null;
+                const location = locationRaw ? String(locationRaw).trim().toUpperCase() : null;
+                const model = modelRaw ? String(modelRaw).trim().toUpperCase() : null;
+                const resolution = resolutionRaw ? String(resolutionRaw).trim().toUpperCase() : null;
+                const capacity = capacityRaw ? String(capacityRaw).trim().toUpperCase() : null;
+                const responsible = responsibleRaw ? String(responsibleRaw).trim().toUpperCase() : null;
+                const workingRange = workingRangeRaw ? String(workingRangeRaw).trim().toUpperCase() : null;
+                const unit = unitRaw ? String(unitRaw).trim().toUpperCase() : null;
 
                 if (!code) {
-                    errors.push(`Linha ${index + 2}: Código ausente.`);
+                    errors.push(`Linha ${index + 2}: CÓDIGO ausente.`);
                     continue;
                 }
 
@@ -44,7 +56,7 @@ export async function POST(request: Request) {
                         where: { name: { equals: typeName, mode: 'insensitive' } }
                     });
                     if (!dbType) {
-                        errors.push(`Linha ${index + 2}: Tipo "${typeName}" não encontrado.`);
+                        errors.push(`Linha ${index + 2}: TIPO "${typeName}" não encontrado.`);
                         continue;
                     }
                     equipmentTypeId = dbType.id;
@@ -76,12 +88,12 @@ export async function POST(request: Request) {
                 } else {
                     // Criar novo equipamento diretamente no estoque
                     if (!name) {
-                        errors.push(`Linha ${index + 2}: Equipamento novo precisa de um Nome.`);
+                        errors.push(`Linha ${index + 2}: Equipamento novo precisa de um NOME.`);
                         continue;
                     }
 
                     if (!equipmentTypeId) {
-                        errors.push(`Linha ${index + 2}: Equipamento novo precisa de um Tipo válido.`);
+                        errors.push(`Linha ${index + 2}: Equipamento novo precisa de um TIPO válido.`);
                         continue;
                     }
 
