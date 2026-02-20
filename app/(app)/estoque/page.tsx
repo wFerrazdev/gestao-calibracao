@@ -349,8 +349,14 @@ export default function EstoquePage() {
             if (res.ok) {
                 const result = await res.json();
                 if (result.errors && result.errors.length > 0) {
-                    toast.error(`Importação com problemas`, {
-                        description: `${result.errors.length} erro(s) encontrados. Ex: ${result.errors[0]}`,
+                    const firstError = result.errors[0];
+                    const remainingErrors = result.errors.length - 1;
+                    const errorMsg = remainingErrors > 0
+                        ? `${firstError} (e mais ${remainingErrors} erros)`
+                        : firstError;
+
+                    toast.error(`Erro na importação`, {
+                        description: errorMsg,
                         duration: 6000,
                     });
                     console.warn('Erros de importação estoque:', result.errors);
