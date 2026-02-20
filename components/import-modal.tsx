@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
+import { cn } from '@/lib/utils';
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -16,6 +17,7 @@ interface ImportModalProps {
 
 export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos' }: ImportModalProps) {
     const [isImporting, setIsImporting] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [previewData, setPreviewData] = useState<any[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,10 +57,7 @@ export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos
         XLSX.writeFile(workbook, fileName);
     };
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0];
-        if (!selectedFile) return;
-
+    const handleFile = async (selectedFile: File) => {
         setFile(selectedFile);
 
         const reader = new FileReader();
@@ -83,6 +82,30 @@ export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos
             }
         };
         reader.readAsBinaryString(selectedFile);
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (!selectedFile) return;
+        handleFile(selectedFile);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const droppedFile = e.dataTransfer.files?.[0];
+        if (droppedFile) {
+            handleFile(droppedFile);
+        }
     };
 
     const handleImport = async () => {
@@ -139,12 +162,23 @@ export function ImportModal({ isOpen, onClose, onImport, context = 'equipamentos
                         <h4 className="text-sm font-medium">2. Selecione o arquivo preenchido</h4>
                         {!file ? (
                             <div
-                                className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+                                className={cn(
+                                    "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
+                                    isDragging
+                                        ? "border-primary bg-primary/10"
+                                        : "border-muted-foreground/25 hover:bg-muted/50"
+                                )}
                                 onClick={() => fileInputRef.current?.click()}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
                             >
-                                <FileSpreadsheet className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                                <FileSpreadsheet className={cn(
+                                    "mx-auto h-10 w-10 mb-3 transition-colors",
+                                    isDragging ? "text-primary" : "text-muted-foreground"
+                                )} />
                                 <p className="text-sm text-muted-foreground font-medium">
-                                    Clique para selecionar ou arraste o arquivo aqui
+                                    {isDragging ? "Solte o arquivo aqui" : "Clique para selecionar ou arraste o arquivo aqui"}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-1">
                                     Suporta arquivos .xlsx ou .xls
