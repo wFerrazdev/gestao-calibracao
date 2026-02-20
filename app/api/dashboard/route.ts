@@ -71,7 +71,7 @@ export async function GET(request: Request) {
             const sector = sectors.find(s => s.id === item.sectorId);
             return {
                 sectorId: item.sectorId,
-                sectorName: sector?.name || 'Estoque',
+                sectorName: sector?.name || 'ESTOQUE',
                 count: item._count,
             };
         });
@@ -200,7 +200,7 @@ export async function GET(request: Request) {
 
                 return {
                     id: 'estoque-bucket',
-                    sectorName: 'Estoque',
+                    sectorName: 'ESTOQUE',
                     total,
                     calibrated,
                     score,
@@ -224,7 +224,7 @@ export async function GET(request: Request) {
             }
         });
 
-        const filteredSectorHealth = Object.values(consolidatedHealth).filter(s => s.hasEquipment || s.sectorName === 'Estoque');
+        const filteredSectorHealth = Object.values(consolidatedHealth).filter(s => s.hasEquipment || s.sectorName === 'ESTOQUE');
 
         // --- NOVAS METRICAS DE QUALIDADE ---
 
