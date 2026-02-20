@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Upload, Download, ArrowRightLeft, Package, MoreHorizontal } from 'lucide-react';
+import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Upload, Download, ArrowRightLeft, Package, MoreHorizontal, Tag, Type, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { EquipmentModal } from '@/app/(app)/equipamentos/components/equipment-modal';
 import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
@@ -108,8 +108,8 @@ export default function EstoquePage() {
             params.set('pageSize', pageSize.toString());
             params.set('usageStatus', 'IN_STOCK'); // Hardcoded filter
             if (search) params.set('q', search);
-            if (statusFilter) params.set('status', statusFilter);
-            if (typeFilter) params.set('equipmentTypeId', typeFilter);
+            if (statusFilter && statusFilter !== 'none') params.set('status', statusFilter);
+            if (typeFilter && typeFilter !== 'none') params.set('equipmentTypeId', typeFilter);
 
             const res = await fetch(`/api/equipment?${params.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -424,27 +424,32 @@ export default function EstoquePage() {
                         className="pl-10"
                     />
                 </div>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                    <option value="">Todos os status</option>
-                    <option value="CALIBRADO">Calibrado</option>
-                    <option value="IRA_VENCER">Irá Vencer</option>
-                    <option value="VENCIDO">Vencido</option>
-                    <option value="REFERENCIA">Referência</option>
-                </select>
-                <select
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                    <option value="">Todos os tipos</option>
-                    {types.map(t => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                </select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                        <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Todos os status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Todos os status</SelectItem>
+                        <SelectItem value="CALIBRADO">Calibrado</SelectItem>
+                        <SelectItem value="IRA_VENCER">Irá Vencer</SelectItem>
+                        <SelectItem value="VENCIDO">Vencido</SelectItem>
+                        <SelectItem value="REFERENCIA">Referência</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-[200px]">
+                        <Type className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Todos os tipos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Todos os tipos</SelectItem>
+                        {types.map(t => (
+                            <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             {/* Bulk Actions Bar */}

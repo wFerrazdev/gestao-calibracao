@@ -8,12 +8,29 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Download, Calendar, Upload } from 'lucide-react';
+import {
+    Plus,
+    Search,
+    Eye,
+    FileText,
+    Pencil,
+    Trash2,
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    Calendar,
+    Upload,
+    Filter,
+    Tag,
+    Layers,
+    Type,
+    MoreHorizontal
+} from 'lucide-react';
 import Link from 'next/link';
-import { EquipmentModal } from './components/equipment-modal'; // Modal de Criação/Edição básica
-import { EquipmentDetailsModal } from '@/components/equipment-details-modal'; // Novo Modal Rico
-import { ServiceModal } from '@/components/service-modal'; // Modal de Agendamento
-import { ConfirmModal } from '@/components/confirm-modal'; // Modal de Confirmação
+import { EquipmentModal } from './components/equipment-modal';
+import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
+import { ServiceModal } from '@/components/service-modal';
+import { ConfirmModal } from '@/components/confirm-modal';
 import {
     Dialog,
     DialogContent,
@@ -32,7 +49,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 import { ExportModal, ExportFilters } from '@/components/export-modal';
 import { ImportModal } from '@/components/import-modal';
@@ -97,13 +120,12 @@ export default function EquipamentosPage() {
             const token = await firebaseUser.getIdToken();
             const params = new URLSearchParams();
             params.set('page', page.toString());
-            params.set('page', page.toString());
             params.set('pageSize', pageSize.toString());
             params.set('usageStatus', 'IN_USE'); // Hardcoded filter for Equipment Page
             if (search) params.set('q', search);
-            if (statusFilter) params.set('status', statusFilter);
-            if (sectorFilter) params.set('sectorId', sectorFilter);
-            if (typeFilter) params.set('equipmentTypeId', typeFilter);
+            if (statusFilter && statusFilter !== 'none') params.set('status', statusFilter);
+            if (sectorFilter && sectorFilter !== 'none') params.set('sectorId', sectorFilter);
+            if (typeFilter && typeFilter !== 'none') params.set('equipmentTypeId', typeFilter);
 
             const res = await fetch(`/api/equipment?${params.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -516,37 +538,45 @@ export default function EquipamentosPage() {
                         className="pl-10"
                     />
                 </div>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                    <option value="">Todos os status</option>
-                    <option value="CALIBRADO">Calibrado</option>
-                    <option value="IRA_VENCER">Irá Vencer</option>
-                    <option value="VENCIDO">Vencido</option>
-                    <option value="REFERENCIA">Referência</option>
-                </select>
-                <select
-                    value={sectorFilter}
-                    onChange={(e) => setSectorFilter(e.target.value)}
-                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                    <option value="">Todos os setores</option>
-                    {sectors.map(s => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                </select>
-                <select
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                    <option value="">Todos os tipos</option>
-                    {types.map(t => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                </select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                        <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Todos os status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Todos os status</SelectItem>
+                        <SelectItem value="CALIBRADO">Calibrado</SelectItem>
+                        <SelectItem value="IRA_VENCER">Irá Vencer</SelectItem>
+                        <SelectItem value="VENCIDO">Vencido</SelectItem>
+                        <SelectItem value="REFERENCIA">Referência</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                    <SelectTrigger className="w-[200px]">
+                        <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Todos os setores" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Todos os setores</SelectItem>
+                        {sectors.map(s => (
+                            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-[200px]">
+                        <Type className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder="Todos os tipos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Todos os tipos</SelectItem>
+                        {types.map(t => (
+                            <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             {/* Bulk Actions Bar */}
