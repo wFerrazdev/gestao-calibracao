@@ -10,10 +10,10 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
 
         // --- MIGRACAO PROATIVA (Agentic Move) ---
-        // Se existir um setor chamado "Geral", renomeamos para "Estoque" para manter a consistência
+        // Se existir um setor chamado "Geral" ou "Estoque", renomeamos para "ESTOQUE" para manter a consistência
         await prisma.sector.updateMany({
-            where: { name: 'Geral' },
-            data: { name: 'Estoque', code: 'ESTOQUE' }
+            where: { name: { in: ['Geral', 'Estoque'] } },
+            data: { name: 'ESTOQUE', code: 'ESTOQUE' }
         });
 
         let sectorId = searchParams.get('sectorId') || undefined;
