@@ -113,6 +113,10 @@ export default function EquipamentosPage() {
                 const data = await res.json();
                 setEquipment(data.items || data);
                 setTotal(data.total || (data.items ? data.total : data.length));
+
+                // Atualiza os filtros disponíveis dinamicamente
+                if (data.availableSectors) setSectors(data.availableSectors);
+                if (data.availableTypes) setTypes(data.availableTypes);
             }
         } catch (e) {
             console.error('Erro ao buscar equipamentos:', e);
@@ -123,10 +127,11 @@ export default function EquipamentosPage() {
     }, [firebaseUser, page, search, statusFilter, sectorFilter, typeFilter]);
 
     useEffect(() => {
-        async function fetchFilters() {
+        async function fetchInitialFilters() {
             if (!firebaseUser) return;
             const token = await firebaseUser.getIdToken();
 
+            // Busca inicial para preencher os dropdowns antes de qualquer filtro ser aplicado
             const [sectorsRes, typesRes] = await Promise.all([
                 fetch('/api/sectors', { headers: { Authorization: `Bearer ${token}` } }),
                 fetch('/api/equipment-types', { headers: { Authorization: `Bearer ${token}` } }),
@@ -135,7 +140,7 @@ export default function EquipamentosPage() {
             if (sectorsRes.ok) setSectors(await sectorsRes.json());
             if (typesRes.ok) setTypes(await typesRes.json());
         }
-        if (firebaseUser) fetchFilters();
+        if (firebaseUser) fetchInitialFilters();
     }, [firebaseUser]);
 
     useEffect(() => {

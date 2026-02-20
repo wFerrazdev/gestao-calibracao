@@ -119,6 +119,10 @@ export default function EstoquePage() {
                 const data = await res.json();
                 setEquipment(data.items || data);
                 setTotal(data.total || (data.items ? data.total : data.length));
+
+                // Atualiza os filtros disponíveis dinamicamente
+                if (data.availableSectors) setSectors(data.availableSectors);
+                if (data.availableTypes) setTypes(data.availableTypes);
             }
         } catch (e) {
             console.error('Erro ao buscar estoque:', e);
@@ -129,10 +133,11 @@ export default function EstoquePage() {
     }, [firebaseUser, page, search, statusFilter, typeFilter]);
 
     useEffect(() => {
-        async function fetchFilters() {
+        async function fetchInitialFilters() {
             if (!firebaseUser) return;
             const token = await firebaseUser.getIdToken();
 
+            // Busca inicial para preencher os dropdowns antes de qualquer filtro ser aplicado
             const [typesRes, sectorsRes] = await Promise.all([
                 fetch('/api/equipment-types', { headers: { Authorization: `Bearer ${token}` } }),
                 fetch('/api/sectors', { headers: { Authorization: `Bearer ${token}` } }),
@@ -141,7 +146,7 @@ export default function EstoquePage() {
             if (typesRes.ok) setTypes(await typesRes.json());
             if (sectorsRes.ok) setSectors(await sectorsRes.json());
         }
-        if (firebaseUser) fetchFilters();
+        if (firebaseUser) fetchInitialFilters();
     }, [firebaseUser]);
 
     useEffect(() => {

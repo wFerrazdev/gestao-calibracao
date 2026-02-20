@@ -88,7 +88,7 @@ export async function GET(request: Request) {
             orderBy = { code: 'asc' };
         }
 
-        const [equipment, total] = await Promise.all([
+        const [equipment, total, availableSectorsRaw, availableTypesRaw] = await Promise.all([
             prisma.equipment.findMany({
                 where,
                 include: {
@@ -100,11 +100,44 @@ export async function GET(request: Request) {
                 take,
             }),
             prisma.equipment.count({ where }),
+            // Filtros inteligentes para setores (ignora filtro de setor atual)
+            prisma.equipment.findMany({
+                where: {
+                    ...where,
+                    sectorId: undefined, // Ignora o filtro de setor selecionado
+                },
+                select: {
+                    Sector: true,
+                },
+                distinct: ['sectorId'],
+            }),
+            // Filtros inteligentes para tipos (ignora filtro de tipo atual)
+            prisma.equipment.findMany({
+                where: {
+                    ...where,
+                    equipmentTypeId: undefined, // Ignora o filtro de tipo selecionado
+                },
+                select: {
+                    EquipmentType: true,
+                },
+                distinct: ['equipmentTypeId'],
+            }),
         ]);
+
+        // Formatar as facetas disponíveis
+        const availableSectors = availableSectorsRaw
+            .map(e => e.Sector)
+            .filter((s): s is any => !!s);
+
+        const availableTypes = availableTypesRaw
+            .map(e => e.EquipmentType)
+            .filter((t): t is any => !!t);
 
         return NextResponse.json({
             items: equipment,
             total,
+            availableSectors,
+            availableTypes,
             page: parseInt(page),
             pageSize: parseInt(pageSize),
             totalPages: Math.ceil(total / parseInt(pageSize)),
