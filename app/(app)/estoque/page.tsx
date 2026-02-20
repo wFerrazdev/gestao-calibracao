@@ -427,10 +427,8 @@ export default function EstoquePage() {
                     <option value="">Todos os status</option>
                     <option value="CALIBRADO">Calibrado</option>
                     <option value="IRA_VENCER">Irá Vencer</option>
-                    <option value="IRA_VENCER">Irá Vencer</option>
                     <option value="VENCIDO">Vencido</option>
                     <option value="REFERENCIA">Referência</option>
-                    <option value="DESATIVADO">Desativado</option>
                 </select>
                 <select
                     value={typeFilter}

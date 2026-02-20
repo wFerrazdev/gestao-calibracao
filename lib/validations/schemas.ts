@@ -110,7 +110,7 @@ export const updateEquipmentSchema = z.object({
 
 export const queryEquipmentSchema = z.object({
     sectorId: z.string().optional(),
-    status: z.enum(['CALIBRADO', 'IRA_VENCER', 'VENCIDO', 'DESATIVADO']).optional(),
+    status: z.enum(['CALIBRADO', 'IRA_VENCER', 'VENCIDO', 'DESATIVADO', 'REFERENCIA']).optional(),
     usageStatus: z.enum(['IN_USE', 'IN_STOCK']).optional(),
     q: z.string().optional(), // Busca por texto
     equipmentTypeId: z.string().optional(),

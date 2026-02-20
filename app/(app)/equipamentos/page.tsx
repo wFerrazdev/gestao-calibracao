@@ -59,7 +59,6 @@ const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secon
     CALIBRADO: { label: 'Calibrado', variant: 'success' },
     IRA_VENCER: { label: 'Irá Vencer', variant: 'warning' },
     VENCIDO: { label: 'Vencido', variant: 'destructive' },
-    DESATIVADO: { label: 'Desativado', variant: 'outline' },
     REFERENCIA: { label: 'Referência', variant: 'reference' },
 };
 
@@ -520,10 +519,8 @@ export default function EquipamentosPage() {
                     <option value="">Todos os status</option>
                     <option value="CALIBRADO">Calibrado</option>
                     <option value="IRA_VENCER">Irá Vencer</option>
-                    <option value="IRA_VENCER">Irá Vencer</option>
                     <option value="VENCIDO">Vencido</option>
                     <option value="REFERENCIA">Referência</option>
-                    <option value="DESATIVADO">Desativado</option>
                 </select>
                 <select
                     value={sectorFilter}
