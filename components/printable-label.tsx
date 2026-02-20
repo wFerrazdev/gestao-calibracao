@@ -11,6 +11,10 @@ interface PrintableLabelProps {
         id: string;
         name: string;
         code: string;
+        status: string;
+        dueDate?: string | Date | null;
+        Sector?: { name: string } | null;
+        EquipmentType?: { name: string } | null;
     };
 }
 
@@ -67,7 +71,10 @@ export function PrintableLabel({ equipment }: PrintableLabelProps) {
 
                         <div className="flex items-end justify-between mt-auto">
                             <span className="text-[6px] text-gray-500 font-bold uppercase tracking-wider">
-                                Calibração
+                                {equipment.status === 'CALIBRADO' ? 'Calibrado' :
+                                    equipment.status === 'VENCIDO' ? 'Vencido' :
+                                        equipment.status === 'IRA_VENCER' ? 'Irá Vencer' :
+                                            equipment.status === 'REFERENCIA' ? 'Referência' : equipment.status}
                             </span>
                             <img src="/logoazul.png" alt="Gatron" className="h-[6mm] object-contain" />
                         </div>
