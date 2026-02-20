@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { User as FirebaseUser, onIdTokenChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import type { User } from '@prisma/client';
 
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUserData) => {
+        const unsubscribe = onIdTokenChanged(auth, async (firebaseUserData) => {
             setFirebaseUser(firebaseUserData);
 
             if (firebaseUserData) {

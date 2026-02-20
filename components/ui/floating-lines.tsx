@@ -167,11 +167,11 @@ const FloatingLines: React.FC<FloatingLinesProps> = ({
 
         // Animation Loop
         let animationFrameId: number;
-        const clock = new THREE.Clock();
+        let startTime = performance.now();
 
         const animate = () => {
             animationFrameId = requestAnimationFrame(animate);
-            const time = clock.getElapsedTime() * finalSpeed;
+            const time = ((performance.now() - startTime) / 1000) * finalSpeed;
 
             if (finalParallax) {
                 targetRotation.x += (mouseY * 0.12 - targetRotation.x) * 0.05;
