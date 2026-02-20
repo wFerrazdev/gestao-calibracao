@@ -143,6 +143,10 @@ export function EquipmentDetailsModal({ equipment, isOpen, onClose, onSchedule, 
         }
     };
 
+    const handlePrintLabel = () => {
+        window.open(`/print/label/${equipment.id}`, '_blank');
+    };
+
     if (!equipment) return null;
 
     return (
