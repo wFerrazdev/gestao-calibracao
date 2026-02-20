@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-full overflow-hidden">
             <ForceTheme />
             <Sidebar />
             <div className="flex flex-1 flex-col overflow-hidden">
