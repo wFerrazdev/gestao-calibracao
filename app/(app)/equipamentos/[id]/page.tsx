@@ -215,7 +215,7 @@ export default function EquipmentDetailPage() {
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Link href="/equipamentos">
+                    <Link href={equipment.Sector?.name === 'ESTOQUE' ? '/estoque' : '/equipamentos'}>
                         <Button variant="ghost" size="sm">
                             <ArrowLeft className="h-4 w-4 mr-1" />
                             Voltar
