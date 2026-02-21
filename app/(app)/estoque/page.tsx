@@ -461,7 +461,7 @@ export default function EstoquePage() {
                     <div className="flex gap-2">
                         {permissions?.canEditEquipment && (
                             <>
-                                <Button variant="secondary" size="sm" onClick={() => setShowBulkMoveToUseModal(true)}>
+                                <Button variant="default" size="sm" onClick={() => setShowBulkMoveToUseModal(true)}>
                                     <ArrowRightLeft className="mr-2 h-4 w-4" />
                                     Mover para Uso
                                 </Button>
@@ -481,10 +481,10 @@ export default function EstoquePage() {
 
             {/* Tabela */}
             <div className="rounded-lg border bg-card overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b bg-muted/50">
+                <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+                    <table className="w-full border-separate border-spacing-0">
+                        <thead className="sticky top-0 z-10">
+                            <tr className="border-b bg-muted/95 backdrop-blur-sm">
                                 <th className="w-[40px] px-4 py-3">
                                     <Checkbox
                                         checked={equipment.length > 0 && selectedItems.size === equipment.length}
@@ -609,8 +609,8 @@ export default function EstoquePage() {
                 </div>
 
                 {/* Paginação */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t px-4 py-3">
+                {total > 0 && (
+                    <div className="flex items-center justify-between border-t px-4 py-3 bg-card">
                         <p className="text-sm text-muted-foreground">
                             Página {page} de {totalPages}
                         </p>

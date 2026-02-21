@@ -767,8 +767,8 @@ export default function EquipamentosPage() {
                 </div>
 
                 {/* Paginação */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t px-4 py-3">
+                {total > 0 && (
+                    <div className="flex items-center justify-between border-t px-4 py-3 bg-card">
                         <p className="text-sm text-muted-foreground">
                             Página {page} de {totalPages}
                         </p>
