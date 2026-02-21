@@ -34,22 +34,11 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Rotas de API - Proteção por padrão
+    // Rotas de API - Proteção delegada aos route handlers
+    // Permitimos passar sem redirecionar para evitar erro de parse JSON no cliente (SyntaxError: Unexpected token <)
+    // A segurança REAL é feita via getCurrentUser() dentro das rotas.
     if (pathname.startsWith('/api/')) {
-        // Permitir APENAS rotas de API públicas e de autenticação
-        const isPublicApi =
-            pathname.startsWith('/api/public/') ||
-            pathname.startsWith('/api/auth/') ||
-            pathname === '/api/me'; // Necessário para o AuthContext validar o token
-
-        if (!isPublicApi) {
-            // Outras APIs exigem autenticação via Bearer Token.
-            // O middleware aqui apenas verifica se há algo no cookie para redirecionar o navegador,
-            // mas a segurança REAL é feita via getCurrentUser() dentro das rotas.
-            // Para chamadas de API feitas pelo cliente, permitimos passar para que a rota
-            // retorne 401/403 corretamente se não houver token ou permissão.
-            return NextResponse.next();
-        }
+        return NextResponse.next();
     }
 
     // Se é rota pública do frontend, permitir
