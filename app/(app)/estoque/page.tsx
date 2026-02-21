@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Upload, Download, ArrowRightLeft, Package, MoreHorizontal, Tag, Type, Layers } from 'lucide-react';
+import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Upload, Download, ArrowRightLeft, Package, MoreHorizontal, Tag, Type, Layers, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { EquipmentModal } from '@/app/(app)/equipamentos/components/equipment-modal';
 import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
@@ -464,7 +464,7 @@ export default function EstoquePage() {
                                 </span>
                                 <div className="flex gap-2">
                                     <Button
-                                        variant="outline"
+                                        variant="default"
                                         size="sm"
                                         onClick={async () => {
                                             const selectedData = equipment
@@ -478,8 +478,8 @@ export default function EstoquePage() {
                                             await generateLabelPDF(selectedData, window.location.origin);
                                         }}
                                     >
-                                        <FileText className="mr-2 h-4 w-4" />
-                                        Etiquetas
+                                        <Printer className="mr-2 h-4 w-4" />
+                                        Imprimir Etiquetas (PDF)
                                     </Button>
                                     {permissions?.canEditEquipment && (
                                         <>
@@ -610,6 +610,12 @@ export default function EstoquePage() {
                                                     <Eye className="mr-2 h-4 w-4" />
                                                     Visualizar
                                                 </DropdownMenuItem>
+                                                <Link href={`/equipamentos/${eq.id}/calibracoes`} onClick={(e) => e.stopPropagation()} className="w-full">
+                                                    <DropdownMenuItem>
+                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        Histórico
+                                                    </DropdownMenuItem>
+                                                </Link>
                                                 {permissions?.canEditEquipment && (
                                                     <>
                                                         <DropdownMenuItem onClick={() => handleEdit(eq)}>
@@ -617,8 +623,10 @@ export default function EstoquePage() {
                                                             Editar
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleDuplicate(eq)}>
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            Duplicar
+                                                            <div className="flex items-center">
+                                                                <span className="mr-2 h-4 w-4 flex items-center justify-center font-bold text-xs border rounded-sm">D</span>
+                                                                Duplicar
+                                                            </div>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={async () => {
                                                             await generateLabelPDF([{
@@ -628,7 +636,7 @@ export default function EstoquePage() {
                                                                 status: eq.status
                                                             }], window.location.origin);
                                                         }}>
-                                                            <FileText className="mr-2 h-4 w-4" />
+                                                            <Printer className="mr-2 h-4 w-4" />
                                                             Gerar Etiqueta
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
