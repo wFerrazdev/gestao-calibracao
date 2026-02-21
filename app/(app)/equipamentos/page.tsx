@@ -601,10 +601,9 @@ export default function EquipamentosPage() {
                     </span>
                     <div className="flex gap-2">
                         <Button
-                            variant="secondary"
+                            variant="default"
                             size="sm"
                             onClick={handlePrintSelected}
-                            className="bg-primary text-white hover:bg-primary/90"
                         >
                             <Printer className="mr-2 h-4 w-4" />
                             Imprimir Etiquetas (PDF)
@@ -631,10 +630,10 @@ export default function EquipamentosPage() {
 
             {/* Tabela */}
             <div className="rounded-lg border bg-card overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b bg-muted/50">
+                <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+                    <table className="w-full border-separate border-spacing-0">
+                        <thead className="sticky top-0 z-10">
+                            <tr className="border-b bg-muted/95 backdrop-blur-sm">
                                 <th className="w-[40px] px-4 py-3">
                                     <Checkbox
                                         checked={equipment.length > 0 && selectedItems.size === equipment.length}
