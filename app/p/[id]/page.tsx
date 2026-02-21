@@ -110,7 +110,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                 <Card className="w-full shadow-2xl border border-white/5 overflow-hidden rounded-[2.5rem] bg-[#111827]/40 backdrop-blur-2xl relative">
                     {/* Minimalist Logo inside Card */}
                     <div className="absolute top-8 left-8 z-20">
-                        <img src="/logo-branca.png" alt="Gatron Logo" className="h-4 opacity-40 hover:opacity-100 transition-opacity" />
+                        <img src="/logo-branca.png" alt="Gatron Logo" className="h-4 opacity-80 hover:opacity-100 transition-opacity" />
                     </div>
 
                     <CardHeader className="text-center pb-2 pt-14 px-8 relative">
