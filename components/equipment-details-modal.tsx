@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Wrench, Calendar, FileText, ExternalLink, Upload, User, Image as ImageIcon, Printer, Pencil, Copy } from 'lucide-react';
+import { Wrench, Calendar, FileText, ExternalLink, Upload, User, Image as ImageIcon, Printer, Pencil, Copy, MapPin, Layers } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -214,8 +214,18 @@ export function EquipmentDetailsModal({ equipment, isOpen, onClose, onSchedule, 
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 flex-grow">
                             <div className="space-y-1">
-                                <span className="text-xs text-muted-foreground font-medium uppercase">Setor</span>
-                                <div className="text-sm font-medium">{equipment.Sector?.name}</div>
+                                <span className="text-xs text-muted-foreground font-medium uppercase flex items-center gap-1">
+                                    {equipment.usageStatus === 'IN_STOCK' ? (
+                                        <><MapPin className="h-3 w-3" /> Localização</>
+                                    ) : (
+                                        <><Layers className="h-3 w-3" /> Setor</>
+                                    )}
+                                </span>
+                                <div className="text-sm font-medium">
+                                    {equipment.usageStatus === 'IN_STOCK'
+                                        ? (equipment.location || '-')
+                                        : (equipment.Sector?.name || '-')}
+                                </div>
                             </div>
                             <div className="space-y-1">
                                 <span className="text-xs text-muted-foreground font-medium uppercase">Tipo</span>

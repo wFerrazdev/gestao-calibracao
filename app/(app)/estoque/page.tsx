@@ -12,6 +12,7 @@ import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight,
 import Link from 'next/link';
 import { EquipmentModal } from '@/app/(app)/equipamentos/components/equipment-modal';
 import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
+import { generateLabelPDF } from '@/lib/label-pdf';
 import { ConfirmModal } from '@/components/confirm-modal';
 import { ImportModal } from '@/components/import-modal';
 import { DataTableShell } from '@/components/ui/data-table-shell';
@@ -462,6 +463,24 @@ export default function EstoquePage() {
                                     {selectedItems.size} selecionado{selectedItems.size !== 1 ? 's' : ''}
                                 </span>
                                 <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={async () => {
+                                            const selectedData = equipment
+                                                .filter(e => selectedItems.has(e.id))
+                                                .map(e => ({
+                                                    id: e.id,
+                                                    code: e.code,
+                                                    name: e.name,
+                                                    status: e.status
+                                                }));
+                                            await generateLabelPDF(selectedData, window.location.origin);
+                                        }}
+                                    >
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        Etiquetas
+                                    </Button>
                                     {permissions?.canEditEquipment && (
                                         <>
                                             <Button variant="default" size="sm" onClick={() => setShowBulkMoveToUseModal(true)}>
@@ -600,6 +619,17 @@ export default function EstoquePage() {
                                                         <DropdownMenuItem onClick={() => handleDuplicate(eq)}>
                                                             <Plus className="mr-2 h-4 w-4" />
                                                             Duplicar
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={async () => {
+                                                            await generateLabelPDF([{
+                                                                id: eq.id,
+                                                                code: eq.code,
+                                                                name: eq.name,
+                                                                status: eq.status
+                                                            }], window.location.origin);
+                                                        }}>
+                                                            <FileText className="mr-2 h-4 w-4" />
+                                                            Gerar Etiqueta
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem onClick={() => handleMoveToUseClick(eq, { stopPropagation: () => { } } as React.MouseEvent)}>
