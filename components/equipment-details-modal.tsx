@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUser } from '@/hooks/useUser';
+import { generateLabelPDF } from '@/lib/label-pdf';
 
 interface EquipmentDetailsModalProps {
     equipment: any;
@@ -143,8 +144,13 @@ export function EquipmentDetailsModal({ equipment, isOpen, onClose, onSchedule, 
         }
     };
 
-    const handlePrintLabel = () => {
-        window.open(`/print/label/${equipment.id}`, '_blank');
+    const handlePrintLabel = async () => {
+        const origin = window.location.origin;
+        toast.promise(generateLabelPDF([equipment], origin), {
+            loading: 'Gerando PDF da etiqueta...',
+            success: 'Etiqueta gerada com sucesso!',
+            error: 'Erro ao gerar etiqueta'
+        });
     };
 
     if (!equipment) return null;

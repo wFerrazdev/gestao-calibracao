@@ -28,6 +28,7 @@ import {
     Printer
 } from 'lucide-react';
 import Link from 'next/link';
+import { generateLabelPDF } from '@/lib/label-pdf';
 import { EquipmentModal } from './components/equipment-modal';
 import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
 import { ServiceModal } from '@/components/service-modal';
@@ -198,10 +199,17 @@ export default function EquipamentosPage() {
         setSelectedItems(newSelected);
     };
 
-    const handlePrintSelected = () => {
+    const handlePrintSelected = async () => {
         if (selectedItems.size === 0) return;
-        const ids = Array.from(selectedItems).join(',');
-        window.open(`/print/labels?ids=${ids}`, '_blank');
+
+        const selectedData = equipment.filter(e => selectedItems.has(e.id));
+        const origin = window.location.origin;
+
+        toast.promise(generateLabelPDF(selectedData, origin), {
+            loading: 'Gerando PDF...',
+            success: 'PDF gerado com sucesso!',
+            error: 'Erro ao gerar PDF'
+        });
     };
 
     const handleDeleteClick = (id: string, e: React.MouseEvent) => {
@@ -599,7 +607,7 @@ export default function EquipamentosPage() {
                             className="bg-primary text-white hover:bg-primary/90"
                         >
                             <Printer className="mr-2 h-4 w-4" />
-                            Imprimir Etiquetas
+                            Imprimir Etiquetas (PDF)
                         </Button>
                         {permissions?.canEditEquipment && (
                             <>
