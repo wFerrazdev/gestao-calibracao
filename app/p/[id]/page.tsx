@@ -83,11 +83,11 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
     return (
         <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-start py-6 px-4 overflow-y-auto">
             <Card className="w-full max-w-md shadow-xl border-none overflow-hidden rounded-2xl bg-white mb-8">
-                <div className="bg-primary h-2 w-full" />
+                <div className="bg-[#072261] h-2 w-full" />
 
                 <CardHeader className="text-center pb-2 pt-6">
-                    <div className="mx-auto w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-primary/20 transform -rotate-3 border-4 border-white">
-                        <ShieldCheck className="h-10 w-10 text-white" />
+                    <div className="mx-auto w-24 h-24 bg-[#072261] rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-blue-900/20 transform -rotate-3 border-4 border-white">
+                        <ShieldCheck className="h-14 w-14 text-white" />
                     </div>
                     <CardTitle className="text-2xl font-extrabold text-slate-800 tracking-tight leading-tight px-2">
                         {equipment.name}

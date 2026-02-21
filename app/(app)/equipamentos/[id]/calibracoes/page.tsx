@@ -295,7 +295,7 @@ export default function CalibracoesPage() {
                 {permissions?.canEditEquipment && (
                     <Button
                         onClick={() => setShowForm(!showForm)}
-                        className="bg-primary hover:bg-primary/90 text-white shadow-md transition-all gap-2 h-11 px-6 rounded-xl"
+                        className="shadow-md transition-all gap-2 h-11 px-6 rounded-xl"
                     >
                         <Plus className="h-5 w-5" />
                         Nova Calibração
