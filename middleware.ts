@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Rotas públicas (não precisam de autenticação)
-const publicRoutes = ['/login', '/signup'];
+const publicRoutes = ['/login', '/signup', '/p'];
 
 // Rotas que exigem autenticação mas permitem qualquer status
 const authRoutes = ['/pending', '/disabled'];
