@@ -61,6 +61,7 @@ import {
 
 import { ExportModal, ExportFilters } from '@/components/export-modal';
 import { ImportModal } from '@/components/import-modal';
+import { DataTableShell } from '@/components/ui/data-table-shell';
 
 interface Equipment {
     id: string;
@@ -513,8 +514,8 @@ export default function EquipamentosPage() {
     };
 
     return (
-        <div className="flex h-full flex-col space-y-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col h-[calc(100vh-4rem-3rem)]">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 shrink-0">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Equipamentos</h1>
                     <p className="text-muted-foreground">
@@ -541,258 +542,250 @@ export default function EquipamentosPage() {
                 </div>
             </div>
 
-            {/* Filtros */}
-            <div className="flex flex-wrap gap-3">
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Buscar por nome ou código..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10"
-                    />
-                </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[180px]">
-                        <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Todos os status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">Todos os status</SelectItem>
-                        <SelectItem value="CALIBRADO">Calibrado</SelectItem>
-                        <SelectItem value="IRA_VENCER">Irá Vencer</SelectItem>
-                        <SelectItem value="VENCIDO">Vencido</SelectItem>
-                        <SelectItem value="REFERENCIA">Referência</SelectItem>
-                    </SelectContent>
-                </Select>
+            <DataTableShell
+                toolbar={
+                    <div className="space-y-4">
+                        {/* Filtros */}
+                        <div className="flex flex-wrap gap-3">
+                            <div className="relative flex-1 min-w-[200px]">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Buscar por nome ou código..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-[180px]">
+                                    <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
+                                    <SelectValue placeholder="Todos os status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Todos os status</SelectItem>
+                                    <SelectItem value="CALIBRADO">Calibrado</SelectItem>
+                                    <SelectItem value="IRA_VENCER">Irá Vencer</SelectItem>
+                                    <SelectItem value="VENCIDO">Vencido</SelectItem>
+                                    <SelectItem value="REFERENCIA">Referência</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                <Select value={sectorFilter} onValueChange={setSectorFilter}>
-                    <SelectTrigger className="w-[200px]">
-                        <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Todos os setores" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">Todos os setores</SelectItem>
-                        {sectors.map(s => (
-                            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                            <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                                <SelectTrigger className="w-[200px]">
+                                    <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
+                                    <SelectValue placeholder="Todos os setores" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Todos os setores</SelectItem>
+                                    {sectors.map(s => (
+                                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-[200px]">
-                        <Type className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Todos os tipos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">Todos os tipos</SelectItem>
-                        {types.map(t => (
-                            <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+                            <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                <SelectTrigger className="w-[200px]">
+                                    <Type className="mr-2 h-4 w-4 text-muted-foreground" />
+                                    <SelectValue placeholder="Todos os tipos" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Todos os tipos</SelectItem>
+                                    {types.map(t => (
+                                        <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-            {/* Bulk Actions Bar */}
-            {selectedItems.size > 0 && (
-                <div className="flex items-center justify-between bg-muted/50 p-3 rounded-lg border mb-4">
-                    <span className="text-sm font-medium">
-                        {selectedItems.size} selecionado{selectedItems.size !== 1 ? 's' : ''}
-                    </span>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="default"
-                            size="sm"
-                            onClick={handlePrintSelected}
-                        >
-                            <Printer className="mr-2 h-4 w-4" />
-                            Imprimir Etiquetas (PDF)
-                        </Button>
-                        {permissions?.canEditEquipment && (
-                            <>
-                                <Button variant="default" size="sm" onClick={() => setShowBulkMoveToStockModal(true)}>
-                                    <Upload className="mr-2 h-4 w-4 rotate-180" />
-                                    Mover para Estoque
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => setShowBulkDeleteModal(true)}
-                                >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Excluir
-                                </Button>
-                            </>
+                        {/* Bulk Actions Bar */}
+                        {selectedItems.size > 0 && (
+                            <div className="flex items-center justify-between bg-muted/60 p-3 rounded-xl border animate-in slide-in-from-top-2">
+                                <span className="text-sm font-medium px-2">
+                                    {selectedItems.size} selecionado{selectedItems.size !== 1 ? 's' : ''}
+                                </span>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={handlePrintSelected}
+                                    >
+                                        <Printer className="mr-2 h-4 w-4" />
+                                        Imprimir Etiquetas (PDF)
+                                    </Button>
+                                    {permissions?.canEditEquipment && (
+                                        <>
+                                            <Button variant="default" size="sm" onClick={() => setShowBulkMoveToStockModal(true)}>
+                                                <Upload className="mr-2 h-4 w-4 rotate-180" />
+                                                Mover para Estoque
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => setShowBulkDeleteModal(true)}
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Excluir
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
                         )}
                     </div>
-                </div>
-            )}
-
-            {/* Tabela */}
-            <div className="rounded-lg border bg-card overflow-hidden">
-                <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
-                    <table className="w-full border-separate border-spacing-0">
-                        <thead className="sticky top-0 z-10">
-                            <tr className="border-b bg-muted/95 backdrop-blur-sm">
-                                <th className="w-[40px] px-4 py-3">
-                                    <Checkbox
-                                        checked={equipment.length > 0 && selectedItems.size === equipment.length}
-                                        onCheckedChange={toggleSelectAll}
-                                        aria-label="Select all"
-                                    />
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Código</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Nome</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Tipo</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Setor</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Última Calibração</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Vencimento</th>
-                                <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase">Status</th>
-                                <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {loading ? (
-                                [...Array(5)].map((_, i) => (
-                                    <tr key={i}>
-                                        {[...Array(8)].map((_, j) => (
-                                            <td key={j} className="px-4 py-3">
-                                                <Skeleton className="h-4 w-full" />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))
-                            ) : equipment.length === 0 ? (
-                                <tr>
-                                    <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
-                                        Nenhum equipamento encontrado
+                }
+                pagination={
+                    total > 0 && (
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm text-muted-foreground">
+                                Página {page} de {totalPages}
+                            </p>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page <= 1}
+                                    onClick={() => setPage(p => p - 1)}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page >= totalPages}
+                                    onClick={() => setPage(p => p + 1)}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    )
+                }
+            >
+                <table className="w-full border-separate border-spacing-0">
+                    <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur-sm shadow-sm">
+                        <tr>
+                            <th className="w-[40px] px-4 py-3 border-b">
+                                <Checkbox
+                                    checked={equipment.length > 0 && selectedItems.size === equipment.length}
+                                    onCheckedChange={toggleSelectAll}
+                                    aria-label="Select all"
+                                />
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Código</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Nome</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Tipo</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Setor</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Última Calibração</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Vencimento</th>
+                            <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase border-b">Status</th>
+                            <th className="w-[50px] px-4 py-3 border-b"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                                <tr key={i}>
+                                    <td colSpan={9} className="px-4 py-4">
+                                        <Skeleton className="h-4 w-full" />
                                     </td>
                                 </tr>
-                            ) : (
-                                equipment.map((eq) => (
-                                    <tr
-                                        key={eq.id}
-                                        className="hover:bg-muted/30 transition-colors cursor-pointer"
-                                        onClick={() => handleRowClick(eq)}
-                                    >
-                                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                                            <Checkbox
-                                                checked={selectedItems.has(eq.id)}
-                                                onCheckedChange={() => toggleSelectItem(eq.id)}
-                                                aria-label={`Select ${eq.name}`}
-                                            />
-                                        </td>
-                                        <td className="px-4 py-3 text-sm font-medium">{eq.code}</td>
-                                        <td className="px-4 py-3 text-sm">{eq.name}</td>
-                                        <td className="px-4 py-3 text-sm text-muted-foreground">{eq.EquipmentType?.name || '-'}</td>
-                                        <td className="px-4 py-3 text-sm text-muted-foreground">{eq.Sector?.name || '-'}</td>
-                                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                                            {eq.lastCalibrationDate
-                                                ? new Date(eq.lastCalibrationDate).toLocaleDateString('pt-BR')
-                                                : '-'}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                                            {eq.dueDate
-                                                ? new Date(eq.dueDate).toLocaleDateString('pt-BR')
-                                                : '-'}
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <StatusBadge status={eq.status} />
-                                        </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Abrir menu</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Ações</DropdownMenuLabel>
-
-                                                    {(permissions?.canManageRules || permissions?.canEditEquipment) && (
-                                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowDetailsModal(false); handleSchedule(eq); }}>
+                            ))
+                        ) : equipment.length === 0 ? (
+                            <tr>
+                                <td colSpan={9} className="px-4 py-12 text-center text-muted-foreground italic">
+                                    Nenhum equipamento encontrado.
+                                </td>
+                            </tr>
+                        ) : (
+                            equipment.map((eq) => (
+                                <tr
+                                    key={eq.id}
+                                    className="group hover:bg-muted/50 transition-colors cursor-pointer"
+                                    onClick={() => handleRowClick(eq)}
+                                >
+                                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                        <Checkbox
+                                            checked={selectedItems.has(eq.id)}
+                                            onCheckedChange={() => toggleSelectItem(eq.id)}
+                                            aria-label={`Select ${eq.code}`}
+                                        />
+                                    </td>
+                                    <td className="px-4 py-3 font-medium">{eq.code}</td>
+                                    <td className="px-4 py-3">{eq.name}</td>
+                                    <td className="px-4 py-3 text-muted-foreground">{eq.EquipmentType?.name || '-'}</td>
+                                    <td className="px-4 py-3 text-muted-foreground">{eq.Sector?.name || '-'}</td>
+                                    <td className="px-4 py-3 text-muted-foreground">
+                                        {eq.lastCalibrationDate ? new Date(eq.lastCalibrationDate).toLocaleDateString('pt-BR') : '-'}
+                                    </td>
+                                    <td className="px-4 py-3 text-muted-foreground">
+                                        {eq.dueDate ? new Date(eq.dueDate).toLocaleDateString('pt-BR') : '-'}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex justify-center">
+                                            <Badge variant={STATUS_CONFIG[eq.status]?.variant || 'outline'}>
+                                                {STATUS_CONFIG[eq.status]?.label || eq.status}
+                                            </Badge>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onClick={() => handleRowClick(eq)}>
+                                                    <Eye className="mr-2 h-4 w-4" />
+                                                    Visualizar
+                                                </DropdownMenuItem>
+                                                <Link href={`/equipamentos/${eq.id}/calibracoes`} onClick={(e) => e.stopPropagation()} className="w-full">
+                                                    <DropdownMenuItem>
+                                                        <FileText className="mr-2 h-4 w-4" />
+                                                        Histórico
+                                                    </DropdownMenuItem>
+                                                </Link>
+                                                {permissions?.canEditEquipment && (
+                                                    <>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onClick={() => { setShowDetailsModal(false); handleSchedule(eq); }}>
                                                             <Calendar className="mr-2 h-4 w-4" />
                                                             Agendar Calibração
                                                         </DropdownMenuItem>
-                                                    )}
-
-                                                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRowClick(eq); }}>
-                                                        <Eye className="mr-2 h-4 w-4" />
-                                                        Ver Detalhes
-                                                    </DropdownMenuItem>
-
-                                                    <Link href={`/equipamentos/${eq.id}/calibracoes`} onClick={(e) => e.stopPropagation()} className="w-full">
-                                                        <DropdownMenuItem>
-                                                            <FileText className="mr-2 h-4 w-4" />
-                                                            Histórico
+                                                        <DropdownMenuItem onClick={() => { setShowDetailsModal(false); handleEdit(eq); }}>
+                                                            <Pencil className="mr-2 h-4 w-4" />
+                                                            Editar
                                                         </DropdownMenuItem>
-                                                    </Link>
-
-                                                    <DropdownMenuSeparator />
-
-                                                    {permissions?.canEditEquipment && (
-                                                        <>
-                                                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(eq); }}>
-                                                                <Pencil className="mr-2 h-4 w-4" />
-                                                                Editar
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDuplicate(eq); }}>
-                                                                <div className="flex items-center">
-                                                                    <span className="mr-2 h-4 w-4 flex items-center justify-center font-bold text-xs border rounded-sm">D</span>
-                                                                    Duplicar
-                                                                </div>
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={(e) => handleMoveToStockClick(eq, e)}>
-                                                                <Upload className="mr-2 h-4 w-4 rotate-180" />
-                                                                Mover para Estoque
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem
-                                                                onClick={(e) => handleDeleteClick(eq.id, e)}
-                                                                className="text-destructive focus:text-destructive"
-                                                            >
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                Excluir
-                                                            </DropdownMenuItem>
-                                                        </>
-                                                    )}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Paginação */}
-                {total > 0 && (
-                    <div className="flex items-center justify-between border-t px-4 py-3 bg-card">
-                        <p className="text-sm text-muted-foreground">
-                            Página {page} de {totalPages}
-                        </p>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={page <= 1}
-                                onClick={() => setPage(p => p - 1)}
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={page >= totalPages}
-                                onClick={() => setPage(p => p + 1)}
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
+                                                        <DropdownMenuItem onClick={() => { setShowDetailsModal(false); handleDuplicate(eq); }}>
+                                                            <div className="flex items-center">
+                                                                <span className="mr-2 h-4 w-4 flex items-center justify-center font-bold text-xs border rounded-sm">D</span>
+                                                                Duplicar
+                                                            </div>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={(e) => handleMoveToStockClick(eq, e)}>
+                                                            <Upload className="mr-2 h-4 w-4 rotate-180" />
+                                                            Mover para Estoque
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={(e) => handleDeleteClick(eq.id, e)}
+                                                            className="text-destructive focus:text-destructive"
+                                                        >
+                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            Excluir
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </DataTableShell>
 
             {/* Modal de Criação/Edição/Duplicação */}
             {showEquipmentModal && (
