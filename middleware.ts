@@ -21,16 +21,38 @@ const viewerBlockedRoutes = [
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Permitir assets e API routes
+    // Permitir assets estáticos
     if (
         pathname.startsWith('/_next') ||
-        pathname.startsWith('/api') ||
         pathname.includes('.') // arquivos estáticos
     ) {
         return NextResponse.next();
     }
 
-    // Se é rota pública, permitir
+    // Permitir acesso à página pública de QR Code
+    if (pathname.startsWith('/p/')) {
+        return NextResponse.next();
+    }
+
+    // Rotas de API - Proteção por padrão
+    if (pathname.startsWith('/api/')) {
+        // Permitir APENAS rotas de API públicas e de autenticação
+        const isPublicApi =
+            pathname.startsWith('/api/public/') ||
+            pathname.startsWith('/api/auth/') ||
+            pathname === '/api/me'; // Necessário para o AuthContext validar o token
+
+        if (!isPublicApi) {
+            // Outras APIs exigem autenticação via Bearer Token.
+            // O middleware aqui apenas verifica se há algo no cookie para redirecionar o navegador,
+            // mas a segurança REAL é feita via getCurrentUser() dentro das rotas.
+            // Para chamadas de API feitas pelo cliente, permitimos passar para que a rota
+            // retorne 401/403 corretamente se não houver token ou permissão.
+            return NextResponse.next();
+        }
+    }
+
+    // Se é rota pública do frontend, permitir
     if (publicRoutes.some(route => pathname.startsWith(route))) {
         return NextResponse.next();
     }

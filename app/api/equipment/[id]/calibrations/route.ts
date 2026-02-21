@@ -103,6 +103,14 @@ export async function POST(
         const user = await getCurrentUser();
         const body: CreateCalibrationBody = await request.json();
 
+        // 🛡️ SEGURANÇA: Apenas QUALIDADE, ADMIN e CRIADOR podem criar calibrações
+        if (!['QUALIDADE', 'ADMIN', 'CRIADOR'].includes(user.role)) {
+            return NextResponse.json(
+                { error: 'Permissão insuficiente para registrar calibrações' },
+                { status: 403 }
+            );
+        }
+
         // Pegar equipamento e sua regra
         const equipment = await prisma.equipment.findUnique({
             where: { id },
@@ -117,6 +125,15 @@ export async function POST(
 
         if (!equipment) {
             return NextResponse.json({ error: 'Equipamento não encontrado' }, { status: 404 });
+        }
+
+        // 🛡️ SEGURANÇA: Validar IDOR - Usuário PRODUCAO só pode ver seu setor (e aqui nem deveria estar criando)
+        // Mas por via das dúvidas, se o papel permitir no futuro, o lock de setor deve ser mantido:
+        if (user.role === 'PRODUCAO' && equipment.sectorId !== user.sectorId) {
+            return NextResponse.json(
+                { error: 'Acesso negado a este equipamento' },
+                { status: 403 }
+            );
         }
 
         // Nova Lógica de Aprovação/Reprovação: Erro > Incerteza

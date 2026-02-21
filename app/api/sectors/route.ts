@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 
 export async function GET() {
     try {
-        await getCurrentUser(); // Apenas validar auth
+        const user = await getCurrentUser(); // 🛡️ SEGURANÇA: Garante usuário ATIVO
 
         const sectors = await prisma.sector.findMany({
             orderBy: { name: 'asc' },
@@ -22,7 +22,7 @@ export async function GET() {
     } catch (error: any) {
         console.error('Error fetching sectors:', error);
 
-        if (error.message.includes('Token') || error.message.includes('não está ativo')) {
+        if (error.message.includes('Token') || error.message.includes('não encontrado') || error.message.includes('não está ativo')) {
             return NextResponse.json({ error: error.message }, { status: 401 });
         }
 
@@ -37,10 +37,10 @@ export async function POST(request: Request) {
     try {
         const user = await getCurrentUser();
 
-        // Apenas ADMIN e CRIADOR podem criar setores
+        // 🛡️ SEGURANÇA: Apenas ADMIN e CRIADOR podem criar setores
         if (!['ADMIN', 'CRIADOR'].includes(user.role)) {
             return NextResponse.json(
-                { error: 'Permissão insuficiente' },
+                { error: 'Permissão insuficiente para criar setores' },
                 { status: 403 }
             );
         }
@@ -66,6 +66,11 @@ export async function POST(request: Request) {
         return NextResponse.json(sector, { status: 201 });
     } catch (error: any) {
         console.error('Error creating sector:', error);
+
+        if (error.message.includes('Token') || error.message.includes('não está ativo')) {
+            return NextResponse.json({ error: error.message }, { status: 401 });
+        }
+
         return NextResponse.json(
             { error: error.message || 'Erro ao criar setor' },
             { status: 500 }
