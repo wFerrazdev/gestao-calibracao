@@ -15,7 +15,12 @@ interface TrendLineProps {
 
 export function TrendLinePremium({ data }: TrendLineProps) {
     return (
-        <ChartCardPremium title="Tendência de Calibrações" icon={TrendingUp} iconColor="text-indigo-500 dark:text-indigo-400">
+        <ChartCardPremium
+            title="Histórico de Calibrações"
+            subtitle="(Últimos 12 meses)"
+            icon={TrendingUp}
+            iconColor="text-indigo-500 dark:text-indigo-400"
+        >
             <div className="relative w-full h-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>

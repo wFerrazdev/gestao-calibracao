@@ -13,6 +13,14 @@ import { DonutChartPremium } from '@/components/dashboard/donut-chart-premium';
 import { StatusChartPremium } from '@/components/dashboard/status-chart-premium';
 import { TrendLinePremium } from '@/components/dashboard/trend-line-premium';
 import { ChartCardPremium } from '@/components/dashboard/chart-card-premium';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Layers } from 'lucide-react';
 
 interface DashboardData {
     totalEquipment: number;
@@ -95,7 +103,7 @@ export default function DashboardPage() {
             try {
                 const token = await firebaseUser.getIdToken();
                 const params = new URLSearchParams();
-                if (sectorFilter) params.set('sectorId', sectorFilter);
+                if (sectorFilter && sectorFilter !== 'all') params.set('sectorId', sectorFilter);
 
                 const response = await fetch(`/api/dashboard?${params.toString()}`, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -174,16 +182,18 @@ export default function DashboardPage() {
                 </div>
                 {/* Filtro por setor (não mostrar para PRODUCAO que já é filtrado automaticamente) */}
                 {dbUser?.role !== 'PRODUCAO' && dbUser?.role !== 'VIEWER' && (
-                    <select
-                        value={sectorFilter}
-                        onChange={(e) => setSectorFilter(e.target.value)}
-                        className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-                    >
-                        <option value="">Todos os setores</option>
-                        {sectors.map(s => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                    </select>
+                    <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                        <SelectTrigger className="w-[220px] bg-white dark:bg-[#1e2330] border-slate-200 dark:border-slate-800">
+                            <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
+                            <SelectValue placeholder="Todos os setores" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos os setores</SelectItem>
+                            {sectors.map(s => (
+                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 )}
             </div>
 

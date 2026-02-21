@@ -6,6 +6,7 @@ import { LucideIcon } from 'lucide-react';
 
 interface ChartCardPremiumProps {
     title: string;
+    subtitle?: string;
     icon?: LucideIcon;
     iconColor?: string;
     children: React.ReactNode;
@@ -17,6 +18,7 @@ interface ChartCardPremiumProps {
 
 export function ChartCardPremium({
     title,
+    subtitle,
     icon: Icon,
     iconColor = "text-blue-500 dark:text-blue-400",
     children,
@@ -44,6 +46,11 @@ export function ChartCardPremium({
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                             {Icon && <Icon className={cn("w-5 h-5", iconColor)} />}
                             {title}
+                            {subtitle && (
+                                <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">
+                                    {subtitle}
+                                </span>
+                            )}
                         </h2>
                     </div>
                     {rightSlot && (
