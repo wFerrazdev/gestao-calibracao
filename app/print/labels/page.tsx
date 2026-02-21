@@ -13,27 +13,28 @@ export default async function BatchPrintPage({
 
     const ids = idsCsv.split(',');
 
-    // Busca equipamentos e seus últimos certificados aprovados
+    // Busca equipamentos de forma simples para evitar problemas de serialização
     const items = await prisma.equipment.findMany({
         where: {
             id: { in: ids }
         },
-        include: {
-            CalibrationRecord: {
-                where: { status: 'APPROVED' },
-                orderBy: { calibrationDate: 'desc' },
-                take: 1
-            }
+        select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true
         }
     });
 
+    if (!items || items.length === 0) return notFound();
+
     // Cabeçalhos para pegar a origem
     const headersList = await headers();
-    const host = headersList.get('host');
+    const host = headersList.get('host') || 'localhost:3000';
     const proto = headersList.get('x-forwarded-proto') || 'http';
     const origin = `${proto}://${host}`;
 
-    // Sem filtros: renderiza todos os itens selecionados
+    // Sem filtros: renderiza todos os itens encontrados
     const eligibleItems = items;
 
     return (

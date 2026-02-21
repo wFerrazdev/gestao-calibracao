@@ -7,19 +7,18 @@ export default async function PrintLabelPage({ params }: { params: Promise<{ id:
     const { id } = await params;
     const equipment = await prisma.equipment.findUnique({
         where: { id },
-        include: {
-            CalibrationRecord: {
-                where: { status: 'APPROVED' },
-                orderBy: { calibrationDate: 'desc' },
-                take: 1
-            }
+        select: {
+            id: true,
+            name: true,
+            code: true,
+            status: true
         }
     });
 
     if (!equipment) notFound();
 
     const headersList = await headers();
-    const host = headersList.get('host');
+    const host = headersList.get('host') || 'localhost:3000';
     const proto = headersList.get('x-forwarded-proto') || 'http';
     const origin = `${proto}://${host}`;
 
