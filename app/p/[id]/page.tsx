@@ -51,7 +51,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
             return (
                 <div className="relative group">
                     <div className="absolute -inset-0.5 bg-purple-500/50 rounded-full blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                    <Badge className="relative bg-[#A855F7] text-white hover:bg-[#A855F7] border-none px-12 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg uppercase">
+                    <Badge className="relative bg-[#A855F7] text-white hover:bg-[#A855F7] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg uppercase whitespace-nowrap">
                         Item de Referência
                     </Badge>
                 </div>
@@ -63,8 +63,8 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                 return (
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-emerald-500/50 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
-                        <Badge className="relative bg-[#10B981] text-white hover:bg-[#10B981] border-none px-12 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase">
-                            <CheckCircle2 className="h-4 w-4" />
+                        <Badge className="relative bg-[#10B981] text-white hover:bg-[#10B981] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
+                            <CheckCircle2 className="h-4 w-4 shrink-0" />
                             Equipamento Calibrado
                         </Badge>
                     </div>
@@ -73,8 +73,8 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                 return (
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-amber-500/50 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
-                        <Badge className="relative bg-[#F59E0B] text-white hover:bg-[#F59E0B] border-none px-12 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase">
-                            <AlertTriangle className="h-4 w-4" />
+                        <Badge className="relative bg-[#F59E0B] text-white hover:bg-[#F59E0B] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
+                            <AlertTriangle className="h-4 w-4 shrink-0" />
                             Irá Vencer
                         </Badge>
                     </div>
@@ -83,8 +83,8 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                 return (
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-red-500/50 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
-                        <Badge className="relative bg-[#EF4444] text-white hover:bg-[#EF4444] border-none px-12 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase">
-                            <XCircle className="h-4 w-4" />
+                        <Badge className="relative bg-[#EF4444] text-white hover:bg-[#EF4444] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
+                            <XCircle className="h-4 w-4 shrink-0" />
                             Vencido
                         </Badge>
                     </div>
@@ -99,14 +99,14 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
     };
 
     return (
-        <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-start py-8 px-4 overflow-y-auto selection:bg-cyan-500/30">
+        <div className="fixed inset-0 bg-[#030712] overflow-y-auto overflow-x-hidden selection:bg-cyan-500/30 touch-pan-y">
             {/* Background Glow */}
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-full overflow-hidden pointer-events-none -z-10">
                 <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-blue-600/10 rounded-full blur-[100px]"></div>
                 <div className="absolute top-[40%] right-0 w-[200px] h-[200px] bg-purple-600/10 rounded-full blur-[80px]"></div>
             </div>
 
-            <div className="w-full max-w-md flex flex-col items-center">
+            <div className="min-h-full w-full flex flex-col items-center py-12 px-4">
                 {/* Header Section */}
                 <div className="w-full flex justify-center mb-12">
                     <img src="/logo-branca.png" alt="Gatron Logo" className="h-10 opacity-90 drop-shadow-md" />
