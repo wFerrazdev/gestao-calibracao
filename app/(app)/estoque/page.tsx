@@ -550,7 +550,7 @@ export default function EstoquePage() {
                             equipment.map((eq) => (
                                 <tr
                                     key={eq.id}
-                                    className="group hover:bg-slate-50/40 dark:hover:bg-white/5 transition-colors cursor-pointer even:bg-slate-50/20 dark:even:bg-white/3"
+                                    className="group hover:bg-slate-50/40 dark:hover:bg-white/5 transition-colors cursor-pointer even:bg-slate-50/20 dark:even:bg-white/3 text-sm"
                                     onClick={() => handleRowClick(eq)}
                                 >
                                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
