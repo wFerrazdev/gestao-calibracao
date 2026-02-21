@@ -20,7 +20,7 @@ export async function GET(
                 Sector: true,
                 EquipmentType: {
                     include: {
-                        CalibrationRule: true, // Fixed relation name
+                        CalibrationRule: true, // Fixed relation name teste
                     },
                 },
             },
