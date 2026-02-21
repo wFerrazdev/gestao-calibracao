@@ -186,63 +186,92 @@ export function Sidebar() {
 
                 <div className="p-2 space-y-2">
                     {/* Toggle Button */}
-                    <Tooltip key="toggle-sidebar">
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="w-full justify-center hover:bg-black/5 dark:hover:bg-white/10"
-                                onClick={() => setIsCollapsed(!isCollapsed)}
-                            >
-                                {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
-                            </Button>
-                        </TooltipTrigger>
-                        {isCollapsed && <TooltipContent side="right">Expandir Sidebar</TooltipContent>}
-                    </Tooltip>
+                    {isCollapsed ? (
+                        <Tooltip key="toggle-sidebar">
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-center hover:bg-black/5 dark:hover:bg-white/10"
+                                    onClick={() => setIsCollapsed(!isCollapsed)}
+                                >
+                                    <ChevronsRight className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Expandir Sidebar</TooltipContent>
+                        </Tooltip>
+                    ) : (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-center hover:bg-black/5 dark:hover:bg-white/10"
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                        >
+                            <ChevronsLeft className="h-4 w-4" />
+                        </Button>
+                    )}
 
                     {/* User Info */}
-                    <Tooltip key="user-info">
-                        <TooltipTrigger asChild>
-                            <div className={cn("flex items-center gap-3 rounded-md bg-muted p-2 overflow-hidden transition-all", isCollapsed && "justify-center px-0 bg-transparent cursor-default")}>
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user?.photoUrl || undefined} className="object-cover" />
-                                        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
-                                            {user?.name?.charAt(0).toUpperCase() || 'U'}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </div>
-
-                                {!isCollapsed && (
-                                    <div className="flex-1 overflow-hidden">
-                                        <div className="truncate text-sm font-medium">{user?.name || 'Usuário'}</div>
-                                        <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
+                    {isCollapsed ? (
+                        <Tooltip key="user-info">
+                            <TooltipTrigger asChild>
+                                <div className="flex items-center justify-center rounded-md p-2 overflow-hidden transition-all bg-transparent cursor-default">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={user?.photoUrl || undefined} className="object-cover" />
+                                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                                                {user?.name?.charAt(0).toUpperCase() || 'U'}
+                                            </AvatarFallback>
+                                        </Avatar>
                                     </div>
-                                )}
-                            </div>
-                        </TooltipTrigger>
-                        {isCollapsed && (
+                                </div>
+                            </TooltipTrigger>
                             <TooltipContent side="right">
                                 <p>{user?.name}</p>
                                 <p className="text-xs text-muted-foreground">{user?.email}</p>
                             </TooltipContent>
-                        )}
-                    </Tooltip>
+                        </Tooltip>
+                    ) : (
+                        <div className="flex items-center gap-3 rounded-md bg-muted p-2 overflow-hidden transition-all">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={user?.photoUrl || undefined} className="object-cover" />
+                                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                                <div className="truncate text-sm font-medium">{user?.name || 'Usuário'}</div>
+                                <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Logout Button */}
-                    <Tooltip key="logout">
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className={cn("w-full justify-start", isCollapsed && "justify-center px-2")}
-                                onClick={handleLogout}
-                            >
-                                <LogOut className={cn("h-4 w-4 shrink-0", !isCollapsed && "mr-2")} />
-                                {!isCollapsed && "Sair"}
-                            </Button>
-                        </TooltipTrigger>
-                        {isCollapsed && <TooltipContent side="right">Sair do Sistema</TooltipContent>}
-                    </Tooltip>
+                    {isCollapsed ? (
+                        <Tooltip key="logout">
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-center px-2"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="h-4 w-4 shrink-0" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Sair do Sistema</TooltipContent>
+                        </Tooltip>
+                    ) : (
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="h-4 w-4 shrink-0 mr-2" />
+                            Sair
+                        </Button>
+                    )}
                 </div>
             </div>
         </TooltipProvider>
