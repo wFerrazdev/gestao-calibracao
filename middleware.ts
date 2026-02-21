@@ -63,6 +63,16 @@ export async function middleware(request: NextRequest) {
         });
 
         if (!meResponse.ok) {
+            // Log do erro para depuração
+            console.error(`Middleware session check failed: ${meResponse.status} ${meResponse.statusText}`);
+
+            // 401 = Token inválido ou expirado - limpar cookie e redirecionar
+            if (meResponse.status === 401) {
+                const response = NextResponse.redirect(new URL('/login', request.url));
+                response.cookies.delete('session');
+                return response;
+            }
+
             // 404 = user existe no Firebase mas não no banco (acabou de criar)
             // Redirecionar para /pending — o AuthContext vai fazer o sync
             if (meResponse.status === 404) {
@@ -72,10 +82,10 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.redirect(new URL('/pending', request.url));
             }
 
-            // Token inválido - limpar cookie e redirecionar
-            const response = NextResponse.redirect(new URL('/login', request.url));
-            response.cookies.delete('session');
-            return response;
+            // Para outros erros (500, timeout, etc), permitimos que a página carregue.
+            // O frontend (AuthContext) tentará buscar os dados novamente.
+            // Isso evita deslogar o usuário por instabilidade momentânea do servidor/rede.
+            return NextResponse.next();
         }
 
         const { user, isCriador } = await meResponse.json();
@@ -112,10 +122,10 @@ export async function middleware(request: NextRequest) {
 
         return NextResponse.next();
     } catch (error) {
-        console.error('Middleware error:', error);
-        const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.delete('session');
-        return response;
+        console.error('Middleware network/parse error:', error);
+        // Em caso de erro de rede (Ex: servidor offline), NÃO deslogamos o usuário imediatamente.
+        // Permitimos que a requisição siga e o frontend trate a falha de carregamento.
+        return NextResponse.next();
     }
 }
 

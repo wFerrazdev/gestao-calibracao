@@ -23,17 +23,16 @@ export async function GET() {
 
         const token = authorization.split('Bearer ')[1];
         const decodedToken = await verifyToken(token);
-
+        // Busca o usuário no banco de dados local
         const user = await prisma.user.findUnique({
             where: { firebaseUid: decodedToken.uid },
-            include: { Sector: true },
+            include: {
+                Sector: true,
+            }
         });
 
         if (!user) {
-            return NextResponse.json(
-                { error: 'Usuário não encontrado no banco de dados' },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'Usuário não encontrado no banco' }, { status: 404 });
         }
 
         // Calcular permissões (retorna permissões zeradas se não ativo)
