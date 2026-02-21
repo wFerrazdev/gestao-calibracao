@@ -107,13 +107,13 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
             </div>
 
             <div className="min-h-full w-full flex flex-col items-center py-12 px-4">
-                {/* Header Section */}
-                <div className="w-full flex justify-center mb-12">
-                    <img src="/logo-branca.png" alt="Gatron Logo" className="h-10 opacity-90 drop-shadow-md" />
-                </div>
-
                 <Card className="w-full shadow-2xl border border-white/5 overflow-hidden rounded-[2.5rem] bg-[#111827]/40 backdrop-blur-2xl relative">
-                    <CardHeader className="text-center pb-2 pt-10 px-8">
+                    {/* Minimalist Logo inside Card */}
+                    <div className="absolute top-8 left-8 z-20">
+                        <img src="/logo-branca.png" alt="Gatron Logo" className="h-4 opacity-40 hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    <CardHeader className="text-center pb-2 pt-14 px-8 relative">
                         {/* Icon Shield with Glow */}
                         <div className="relative mx-auto w-24 h-24 mb-6">
                             <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
