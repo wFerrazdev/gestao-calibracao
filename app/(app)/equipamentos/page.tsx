@@ -764,6 +764,21 @@ export default function EquipamentosPage() {
                                                                 Duplicar
                                                             </div>
                                                         </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={async (e) => {
+                                                                e.stopPropagation();
+                                                                const labelData = [{
+                                                                    id: eq.id,
+                                                                    code: eq.code,
+                                                                    name: eq.name,
+                                                                    status: eq.status
+                                                                }];
+                                                                await generateLabelPDF(labelData, window.location.origin);
+                                                            }}
+                                                        >
+                                                            <Printer className="mr-2 h-4 w-4" />
+                                                            Gerar Etiqueta
+                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={(e) => handleMoveToStockClick(eq, e)}>
                                                             <Upload className="mr-2 h-4 w-4 rotate-180" />
                                                             Mover para Estoque

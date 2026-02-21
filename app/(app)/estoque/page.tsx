@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Upload, Download, ArrowRightLeft, Package, MoreHorizontal, Tag, Type, Layers, Printer } from 'lucide-react';
+import { Plus, Search, Eye, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Upload, Download, ArrowRightLeft, Package, MoreHorizontal, Tag, Type, Layers, Printer, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { EquipmentModal } from '@/app/(app)/equipamentos/components/equipment-modal';
 import { EquipmentDetailsModal } from '@/components/equipment-details-modal';
+import { ServiceModal } from '@/components/service-modal';
 import { generateLabelPDF } from '@/lib/label-pdf';
 import { ConfirmModal } from '@/components/confirm-modal';
 import { ImportModal } from '@/components/import-modal';
@@ -80,6 +81,8 @@ export default function EstoquePage() {
     const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
     const [equipmentToEdit, setEquipmentToEdit] = useState<Equipment | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showServiceModal, setShowServiceModal] = useState(false);
+    const [serviceEquipment, setServiceEquipment] = useState<any>(null);
 
     // Move to Use Modal State
     const [showMoveToUseModal, setShowMoveToUseModal] = useState(false);
@@ -163,6 +166,11 @@ export default function EstoquePage() {
     const handleRowClick = (eq: Equipment) => {
         setSelectedEquipment(eq);
         setShowDetailsModal(true);
+    };
+
+    const handleSchedule = (eq: any) => {
+        setServiceEquipment({ equipmentId: eq.id, scheduledDate: new Date() });
+        setShowServiceModal(true);
     };
 
     const totalPages = Math.ceil(total / pageSize);
@@ -618,6 +626,11 @@ export default function EstoquePage() {
                                                 </Link>
                                                 {permissions?.canEditEquipment && (
                                                     <>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onClick={() => { setShowDetailsModal(false); handleSchedule(eq); }}>
+                                                            <Calendar className="mr-2 h-4 w-4" />
+                                                            Agendar Calibração
+                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleEdit(eq)}>
                                                             <Pencil className="mr-2 h-4 w-4" />
                                                             Editar
@@ -639,7 +652,6 @@ export default function EstoquePage() {
                                                             <Printer className="mr-2 h-4 w-4" />
                                                             Gerar Etiqueta
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
                                                         <DropdownMenuItem onClick={() => handleMoveToUseClick(eq, { stopPropagation: () => { } } as React.MouseEvent)}>
                                                             <ArrowRightLeft className="mr-2 h-4 w-4" />
                                                             Mover para Uso
@@ -667,7 +679,10 @@ export default function EstoquePage() {
                 equipment={selectedEquipment as any}
                 isOpen={showDetailsModal}
                 onClose={() => setShowDetailsModal(false)}
-                onSchedule={() => { }} // No-op for now in stock
+                onSchedule={() => {
+                    setShowDetailsModal(false);
+                    handleSchedule(selectedEquipment);
+                }}
                 onEdit={(eq: any) => {
                     setShowDetailsModal(false);
                     handleEdit(eq);
@@ -808,6 +823,17 @@ export default function EstoquePage() {
                 onClose={() => setShowImportModal(false)}
                 onImport={handleImport}
             />
+            {showServiceModal && serviceEquipment && (
+                <ServiceModal
+                    isOpen={showServiceModal}
+                    onClose={() => setShowServiceModal(false)}
+                    onSuccess={() => {
+                        setShowServiceModal(false);
+                        fetchEquipment();
+                    }}
+                    serviceToEdit={serviceEquipment}
+                />
+            )}
         </div>
     );
 }
