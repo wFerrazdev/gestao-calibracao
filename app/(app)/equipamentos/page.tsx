@@ -610,7 +610,7 @@ export default function EquipamentosPage() {
                         </Button>
                         {permissions?.canEditEquipment && (
                             <>
-                                <Button variant="secondary" size="sm" onClick={() => setShowBulkMoveToStockModal(true)}>
+                                <Button variant="default" size="sm" onClick={() => setShowBulkMoveToStockModal(true)}>
                                     <Upload className="mr-2 h-4 w-4 rotate-180" />
                                     Mover para Estoque
                                 </Button>
