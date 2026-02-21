@@ -8,77 +8,94 @@ interface LabelData {
     status: string;
 }
 
+/**
+ * Desenha uma etiqueta individual no PDF
+ * @param doc Instância do jsPDF
+ * @param item Dados do equipamento
+ * @param xOffset Deslocamento horizontal (0 para esquerda, ~55 para direita)
+ * @param origin URL de origem para o QR Code
+ */
+async function drawLabel(doc: jsPDF, item: LabelData, xOffset: number, origin: string) {
+    const qrValue = `${origin}/p/${item.id}`;
+
+    // Configurações básicas de fonte
+    doc.setFont("helvetica", "bold");
+
+    // Desenha QR Code
+    try {
+        const qrDataUrl = await generateQRCodeDataURL(qrValue);
+        // QR Code posicionado dentro da etiqueta (xOffset + 2mm)
+        doc.addImage(qrDataUrl, 'PNG', xOffset + 2, 2, 18, 18);
+    } catch (e) {
+        console.error("Erro ao gerar QR Code para o PDF", e);
+    }
+
+    // Desenha Informações do Equipamento
+    const contentXOffset = xOffset + 22; // Inicia após o QR Code
+
+    // Código
+    doc.setFontSize(10);
+    doc.text(item.code, contentXOffset, 6);
+
+    // Nome (Truncado se necessário)
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(6);
+    const nameLines = doc.splitTextToSize(item.name, 26);
+    doc.text(nameLines.slice(0, 2), contentXOffset, 10);
+
+    // Linha Separadora Sutil
+    doc.setDrawColor(200, 200, 200);
+    doc.line(contentXOffset, 18, xOffset + 48, 18);
+
+    // Status
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6);
+    const statusText = item.status === 'CALIBRADO' ? 'CALIBRADO' :
+        item.status === 'IRA_VENCER' ? 'IRÁ VENCER' :
+            item.status === 'VENCIDO' ? 'VENCIDO' : item.status;
+
+    doc.text(statusText, contentXOffset, 22);
+
+    // Logo Gatron
+    try {
+        // Posicionada no canto inferior direito da etiqueta
+        doc.addImage('/logoazul.png', 'PNG', xOffset + 36, 18, 12, 5);
+    } catch (e) {
+        // Silencioso se a logo falhar
+    }
+}
+
 export async function generateLabelPDF(items: LabelData[], origin: string) {
-    // Cria o documento com unidade em mm e tamanho de página 50x25
+    // BOBINA 2-UP: Duas etiquetas de 50x25mm lado a lado.
+    // Largura total aproximada: 50mm + 50mm + 5mm (gap) = 105mm
     const doc = new jsPDF({
         orientation: 'l',
         unit: 'mm',
-        format: [50, 25],
+        format: [105, 25],
         putOnlyUsedFonts: true,
         floatPrecision: 16
     });
 
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-
-        // Se não for a primeira página, adiciona uma nova
+    // Processa os itens em pares
+    for (let i = 0; i < items.length; i += 2) {
+        // Se não for o primeiro par, adiciona uma nova página (linha da bobina)
         if (i > 0) {
-            doc.addPage([50, 25], 'l');
+            doc.addPage([105, 25], 'l');
         }
 
-        const qrValue = `${origin}/p/${item.id}`;
+        // Desenha a primeira etiqueta (Esquerda)
+        await drawLabel(doc, items[i], 0, origin);
 
-        // Configurações básicas de fonte
-        doc.setFont("helvetica", "bold");
-
-        // Desenha QR Code
-        // Para o jsPDF, precisamos converter o QR para uma imagem ou usar um canvas temporário
-        // Como estamos no ambiente client-side, podemos usar uma abordagem de canvas
-        try {
-            const qrDataUrl = await generateQRCodeDataURL(qrValue);
-            doc.addImage(qrDataUrl, 'PNG', 2, 2, 18, 18);
-        } catch (e) {
-            console.error("Erro ao gerar QR Code para o PDF", e);
-        }
-
-        // Desenha Informações do Equipamento
-        const xOffset = 22; // Inicia após o QR Code
-
-        // Código
-        doc.setFontSize(10);
-        doc.text(item.code, xOffset, 6);
-
-        // Nome (Truncado se necessário)
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(6);
-        const nameLines = doc.splitTextToSize(item.name, 26);
-        doc.text(nameLines.slice(0, 2), xOffset, 10);
-
-        // Status
-        doc.setDrawColor(200, 200, 200);
-        doc.line(xOffset, 18, 48, 18);
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(6);
-        const statusText = item.status === 'CALIBRADO' ? 'CALIBRADO' :
-            item.status === 'IRA_VENCER' ? 'IRÁ VENCER' :
-                item.status === 'VENCIDO' ? 'VENCIDO' : item.status;
-
-        doc.text(statusText, xOffset, 22);
-
-        // Logo Gatron (Se disponível localmente em base64 para o PDF)
-        try {
-            // Tentaremos carregar a logo azul
-            // Nota: Em produção, o ideal é ter o base64 da logo pré-carregado
-            doc.addImage('/logoazul.png', 'PNG', 36, 18, 12, 5);
-        } catch (e) {
-            // Silencioso se a logo falhar no PDF
+        // Se houver um segundo item, desenha a segunda etiqueta (Direita)
+        if (items[i + 1]) {
+            // xOffset de 55mm (50mm da primeira etiqueta + 5mm de gap aproximado)
+            await drawLabel(doc, items[i + 1], 55, origin);
         }
     }
 
     // Salva o documento
     const date = new Date().toISOString().split('T')[0];
-    doc.save(`etiquetas_zebra_${date}.pdf`);
+    doc.save(`etiquetas_zebra_2up_${date}.pdf`);
 }
 
 /**
@@ -86,7 +103,6 @@ export async function generateLabelPDF(items: LabelData[], origin: string) {
  */
 async function generateQRCodeDataURL(value: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        // Importação dinâmica para garantir que rode apenas no cliente
         import('qrcode').then((QRCode: any) => {
             const canvas = document.createElement('canvas');
             QRCode.toCanvas(canvas, value, {
