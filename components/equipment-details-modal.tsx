@@ -138,7 +138,7 @@ export function EquipmentDetailsModal({ equipment, isOpen, onClose, onSchedule, 
         } catch (error) {
             console.error(error);
             toast.error('Erro ao atualizar foto');
-            setImageUrl(equipment?.imageUrl); // Reverte em caso de erro
+            setImageUrl(equipment?.imageUrl); // Reverte em caso de erro2
         } finally {
             setUploading(false);
         }
