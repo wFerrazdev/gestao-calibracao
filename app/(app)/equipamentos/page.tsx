@@ -662,7 +662,7 @@ export default function EquipamentosPage() {
                 }
             >
                 <table className="w-full border-separate border-spacing-0">
-                    <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur-sm shadow-sm">
+                    <thead className="sticky top-0 z-10 bg-white/40 dark:bg-white/5 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10 shadow-sm">
                         <tr>
                             <th className="w-[40px] px-4 py-3 border-b">
                                 <Checkbox
@@ -671,17 +671,17 @@ export default function EquipamentosPage() {
                                     aria-label="Select all"
                                 />
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Código</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Nome</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Tipo</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Setor</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Última Calibração</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b">Vencimento</th>
-                            <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase border-b">Status</th>
-                            <th className="w-[50px] px-4 py-3 border-b"></th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Código</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Nome</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Tipo</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Setor</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Última Calibração</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Vencimento</th>
+                            <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase border-b tracking-wider md:border-l md:border-slate-200/50 md:dark:border-white/5">Status</th>
+                            <th className="w-[50px] px-4 py-3 border-b md:border-l md:border-slate-200/50 md:dark:border-white/5"></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
+                    <tbody className="divide-y divide-slate-200/60 dark:divide-white/5">
                         {loading ? (
                             Array.from({ length: 5 }).map((_, i) => (
                                 <tr key={i}>
@@ -700,7 +700,7 @@ export default function EquipamentosPage() {
                             equipment.map((eq) => (
                                 <tr
                                     key={eq.id}
-                                    className="group hover:bg-muted/50 transition-colors cursor-pointer"
+                                    className="group hover:bg-slate-50/40 dark:hover:bg-white/5 transition-colors cursor-pointer even:bg-slate-50/20 dark:even:bg-white/3"
                                     onClick={() => handleRowClick(eq)}
                                 >
                                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -710,24 +710,24 @@ export default function EquipamentosPage() {
                                             aria-label={`Select ${eq.code}`}
                                         />
                                     </td>
-                                    <td className="px-4 py-3 font-medium">{eq.code}</td>
-                                    <td className="px-4 py-3">{eq.name}</td>
-                                    <td className="px-4 py-3 text-muted-foreground">{eq.EquipmentType?.name || '-'}</td>
-                                    <td className="px-4 py-3 text-muted-foreground">{eq.Sector?.name || '-'}</td>
-                                    <td className="px-4 py-3 text-muted-foreground">
+                                    <td className="px-4 py-3 font-medium md:border-l md:border-slate-200/50 md:dark:border-white/5">{eq.code}</td>
+                                    <td className="px-4 py-3 md:border-l md:border-slate-200/50 md:dark:border-white/5">{eq.name}</td>
+                                    <td className="px-4 py-3 text-muted-foreground md:border-l md:border-slate-200/50 md:dark:border-white/5">{eq.EquipmentType?.name || '-'}</td>
+                                    <td className="px-4 py-3 text-muted-foreground md:border-l md:border-slate-200/50 md:dark:border-white/5">{eq.Sector?.name || '-'}</td>
+                                    <td className="px-4 py-3 text-muted-foreground md:border-l md:border-slate-200/50 md:dark:border-white/5">
                                         {eq.lastCalibrationDate ? new Date(eq.lastCalibrationDate).toLocaleDateString('pt-BR') : '-'}
                                     </td>
-                                    <td className="px-4 py-3 text-muted-foreground">
+                                    <td className="px-4 py-3 text-muted-foreground md:border-l md:border-slate-200/50 md:dark:border-white/5">
                                         {eq.dueDate ? new Date(eq.dueDate).toLocaleDateString('pt-BR') : '-'}
                                     </td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 md:border-l md:border-slate-200/50 md:dark:border-white/5">
                                         <div className="flex justify-center">
                                             <Badge variant={STATUS_CONFIG[eq.status]?.variant || 'outline'}>
                                                 {STATUS_CONFIG[eq.status]?.label || eq.status}
                                             </Badge>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                    <td className="px-4 py-3 md:border-l md:border-slate-200/50 md:dark:border-white/5" onClick={(e) => e.stopPropagation()}>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8">
