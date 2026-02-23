@@ -226,6 +226,7 @@ enum EquipmentStatus {
   VENCIDO
   DESATIVADO
   REFERENCIA
+  SUCATEADO
 }
 
 enum UserRole {

@@ -50,6 +50,7 @@ export async function GET(request: Request) {
             VENCIDO: 0,
             DESATIVADO: 0,
             REFERENCIA: 0,
+            SUCATEADO: 0,
         };
 
         countByStatus.forEach(item => {

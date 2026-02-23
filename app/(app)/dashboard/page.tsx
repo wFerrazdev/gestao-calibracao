@@ -30,6 +30,7 @@ interface DashboardData {
         VENCIDO: number;
         DESATIVADO: number;
         REFERENCIA: number;
+        SUCATEADO: number;
     };
     countBySector: Array<{ sectorId: string; sectorName: string; count: number }>;
     upcomingDue: any[];
@@ -63,6 +64,7 @@ const STATUS_COLORS: Record<string, string> = {
     VENCIDO: '#ef4444',
     DESATIVADO: '#94a3b8',
     REFERENCIA: '#9333ea',
+    SUCATEADO: '#f97316',
 };
 
 const PIE_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#06b6d4'];
@@ -154,6 +156,7 @@ export default function DashboardPage() {
         { name: 'Vencido', value: data.countByStatus.VENCIDO, fill: STATUS_COLORS.VENCIDO },
         { name: 'Referência', value: data.countByStatus.REFERENCIA, fill: STATUS_COLORS.REFERENCIA },
         { name: 'Desativado', value: data.countByStatus.DESATIVADO, fill: STATUS_COLORS.DESATIVADO },
+        { name: 'Sucateado', value: data.countByStatus.SUCATEADO, fill: STATUS_COLORS.SUCATEADO },
     ] : [];
 
     const approvalChartData = data ? [
@@ -382,6 +385,7 @@ function StatusBadge({ status }: { status: string }) {
         VENCIDO: { label: 'Vencido', className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
         REFERENCIA: { label: 'Referência', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
         DESATIVADO: { label: 'Desativado', className: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
+        SUCATEADO: { label: 'Sucateado', className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
     };
 
     const c = config[status] || { label: status, className: 'bg-gray-100 text-gray-800' };

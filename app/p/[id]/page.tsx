@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tag, Layers, Type, Calendar, FileText, ExternalLink, ShieldCheck, AlertTriangle, XCircle, CheckCircle2, MapPin, User as UserIcon, Settings } from 'lucide-react';
+import { Tag, Layers, Type, Calendar, FileText, ExternalLink, ShieldCheck, AlertTriangle, XCircle, CheckCircle2, MapPin, User as UserIcon, Settings, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default async function PublicRedirectPage({ params }: { params: Promise<{ id: string }> }) {
@@ -86,6 +86,16 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                         <Badge className="relative bg-[#EF4444] text-white hover:bg-[#EF4444] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
                             <XCircle className="h-4 w-4 shrink-0" />
                             Vencido
+                        </Badge>
+                    </div>
+                );
+            case 'SUCATEADO':
+                return (
+                    <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-orange-500/50 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+                        <Badge className="relative bg-[#F97316] text-white hover:bg-[#F97316] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
+                            <Trash className="h-4 w-4 shrink-0" />
+                            Equipamento Sucateado
                         </Badge>
                     </div>
                 );

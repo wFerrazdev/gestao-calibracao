@@ -24,42 +24,39 @@ async function drawLabel(doc: jsPDF, item: LabelData, xOffset: number, origin: s
     // Desenha QR Code
     try {
         const qrDataUrl = await generateQRCodeDataURL(qrValue);
-        // QR Code posicionado dentro da etiqueta (xOffset + 2mm)
-        doc.addImage(qrDataUrl, 'PNG', xOffset + 2, 2, 18, 18);
+        // QR Code posicionado dentro da etiqueta (xOffset + 2mm) e centralizado verticalmente (~16x16mm)
+        doc.addImage(qrDataUrl, 'PNG', xOffset + 2, 4.5, 16, 16);
     } catch (e) {
         console.error("Erro ao gerar QR Code para o PDF", e);
     }
 
     // Desenha Informações do Equipamento
-    const contentXOffset = xOffset + 22; // Inicia após o QR Code
+    const contentXOffset = xOffset + 20; // Inicia após o QR Code deixando 2mm de folga
 
     // Código
-    doc.setFontSize(10);
-    doc.text(item.code, contentXOffset, 6);
+    doc.setFontSize(9);
+    doc.text(item.code, contentXOffset, 8);
 
     // Nome (Truncado se necessário)
     doc.setFont("helvetica", "normal");
     doc.setFontSize(6);
-    const nameLines = doc.splitTextToSize(item.name, 26);
-    doc.text(nameLines.slice(0, 2), contentXOffset, 10);
-
-    // Linha Separadora Sutil
-    doc.setDrawColor(200, 200, 200);
-    doc.line(contentXOffset, 18, xOffset + 48, 18);
+    const nameLines = doc.splitTextToSize(item.name, 28);
+    // Limita a exibição do nome a 2 linhas
+    doc.text(nameLines.slice(0, 2), contentXOffset, 12);
 
     // Status
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(6);
+    doc.setFontSize(7);
     const statusText = item.status === 'CALIBRADO' ? 'CALIBRADO' :
         item.status === 'IRA_VENCER' ? 'IRÁ VENCER' :
             item.status === 'VENCIDO' ? 'VENCIDO' : item.status;
 
-    doc.text(statusText, contentXOffset, 22);
+    doc.text(statusText, contentXOffset, 20);
 
     // Logo Gatron
     try {
-        // Posicionada no canto inferior direito da etiqueta
-        doc.addImage('/logoazul.png', 'PNG', xOffset + 36, 18, 12, 5);
+        // Reduzida e movida sutilmente para a esquerda para não encostar na borda de impressão térmica
+        doc.addImage('/logoazul.png', 'PNG', xOffset + 38, 17.5, 10, 4);
     } catch (e) {
         // Silencioso se a logo falhar
     }
@@ -67,20 +64,20 @@ async function drawLabel(doc: jsPDF, item: LabelData, xOffset: number, origin: s
 
 export async function generateLabelPDF(items: LabelData[], origin: string) {
     // BOBINA 2-UP: Duas etiquetas de 50x25mm lado a lado.
-    // Largura total aproximada: 50mm + 50mm + 5mm (gap) = 105mm
+    // Largura total de 104mm garante compatibilidade sem forçar scale-down no driver da Zebra.
     const doc = new jsPDF({
         orientation: 'l',
         unit: 'mm',
-        format: [105, 25],
+        format: [104, 25],
         putOnlyUsedFonts: true,
         floatPrecision: 16
     });
 
     // Processa os itens em pares
     for (let i = 0; i < items.length; i += 2) {
-        // Se não for o primeiro par, adiciona uma nova página (linha da bobina)
+        // Se não for o primeiro par, adiciona uma nova página
         if (i > 0) {
-            doc.addPage([105, 25], 'l');
+            doc.addPage([104, 25], 'l');
         }
 
         // Desenha a primeira etiqueta (Esquerda)
@@ -88,8 +85,8 @@ export async function generateLabelPDF(items: LabelData[], origin: string) {
 
         // Se houver um segundo item, desenha a segunda etiqueta (Direita)
         if (items[i + 1]) {
-            // xOffset de 55mm (50mm da primeira etiqueta + 5mm de gap aproximado)
-            await drawLabel(doc, items[i + 1], 55, origin);
+            // xOffset de 52mm (50mm da primeira etiqueta + 2mm de gap real do rolo)
+            await drawLabel(doc, items[i + 1], 52, origin);
         }
     }
 

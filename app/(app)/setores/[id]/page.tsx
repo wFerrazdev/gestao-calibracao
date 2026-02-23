@@ -51,7 +51,7 @@ interface Equipment {
     manufacturerModel: string | null;
     resolution: string | null;
     capacity: string | null;
-    status: 'CALIBRADO' | 'IRA_VENCER' | 'VENCIDO' | 'DESATIVADO' | 'REFERENCIA';
+    status: 'CALIBRADO' | 'IRA_VENCER' | 'VENCIDO' | 'DESATIVADO' | 'REFERENCIA' | 'SUCATEADO';
     dueDate: string | null;
     lastCalibrationDate: string | null;
     lastCertificateNumber: string | null;
@@ -160,6 +160,7 @@ export default function SectorDetailsPage() {
             case 'VENCIDO': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
             case 'DESATIVADO': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
             case 'REFERENCIA': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+            case 'SUCATEADO': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -171,6 +172,7 @@ export default function SectorDetailsPage() {
             case 'VENCIDO': return 'Vencido';
             case 'DESATIVADO': return 'Desativado';
             case 'REFERENCIA': return 'Referência';
+            case 'SUCATEADO': return 'Sucateado';
             default: return status;
         }
     };
@@ -227,6 +229,7 @@ export default function SectorDetailsPage() {
                             <SelectItem value="VENCIDO">Vencido</SelectItem>
                             <SelectItem value="DESATIVADO">Desativado</SelectItem>
                             <SelectItem value="REFERENCIA">Referência</SelectItem>
+                            <SelectItem value="SUCATEADO">Sucateado</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
