@@ -113,16 +113,16 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
     }
 
     return (
-        <div className="fixed inset-0 bg-slate-50 transition-colors duration-500 overflow-y-auto overflow-x-hidden selection:bg-blue-500/30 touch-pan-y">
-            {/* Background Glow & Gradient */}
-            <div className="fixed inset-0 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 -z-10" />
+        <div className="fixed inset-0 bg-white transition-colors duration-500 overflow-y-auto overflow-x-hidden selection:bg-blue-500/30 touch-pan-y">
+            {/* Subtle Texture/Gradient */}
+            <div className="fixed inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-50/50 via-white to-white -z-10" />
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-full overflow-hidden pointer-events-none -z-10">
-                <div className="absolute top-[5%] left-1/4 w-[350px] h-[350px] bg-blue-400/10 rounded-full blur-[120px]"></div>
-                <div className="absolute top-[35%] -right-1/4 w-[250px] h-[250px] bg-indigo-400/10 rounded-full blur-[100px]"></div>
+                <div className="absolute top-[5%] left-1/4 w-[350px] h-[350px] bg-blue-400/5 rounded-full blur-[120px]"></div>
+                <div className="absolute top-[35%] -right-1/4 w-[250px] h-[250px] bg-indigo-400/5 rounded-full blur-[100px]"></div>
             </div>
 
             <div className="min-h-full w-full flex flex-col items-center py-12 px-4 text-slate-900">
-                <Card className="w-full shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-slate-200/60 overflow-hidden rounded-[2.5rem] bg-white/90 backdrop-blur-xl relative">
+                <Card className="w-full shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-200/50 overflow-hidden rounded-[2.5rem] bg-slate-50 relative">
                     {/* Minimalist Logo inside Card */}
                     <div className="absolute top-8 left-8 z-20">
                         <img src="/logoazul.png" alt="Gatron Logo" className="h-4 opacity-100" />
@@ -131,18 +131,18 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                     <CardHeader className="text-center pb-2 pt-14 px-8 relative">
                         {/* Icon Shield with Glow */}
                         <div className="relative mx-auto w-24 h-24 mb-6">
-                            <div className="absolute inset-0 bg-blue-500/5 rounded-full blur-2xl animate-pulse"></div>
-                            <div className="relative w-full h-full bg-white rounded-[2rem] flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.04)] border border-slate-100">
+                            <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-2xl animate-pulse"></div>
+                            <div className="relative w-full h-full bg-white rounded-[2rem] flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-slate-100">
                                 <ShieldCheck className="h-12 w-12 text-blue-600 drop-shadow-[0_0_8px_rgba(37,99,235,0.2)]" />
                             </div>
                         </div>
 
-                        <CardTitle className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none px-2 mb-2">
+                        <CardTitle className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none px-2 mb-2 uppercase break-words">
                             {equipment.name}
                         </CardTitle>
 
                         <div className="mt-4">
-                            <span className="text-[11px] font-mono text-cyan-700 bg-cyan-50 border border-cyan-100 px-4 py-1.5 rounded-full tracking-widest uppercase font-bold shadow-sm">
+                            <span className="text-[11px] font-mono text-blue-700 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full tracking-widest uppercase font-bold shadow-sm">
                                 {equipment.code}
                             </span>
                         </div>
@@ -160,14 +160,14 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                                     rel="noopener noreferrer"
                                     className="w-full"
                                 >
-                                    <Button className="w-full h-14 text-sm font-bold gap-3 rounded-2xl shadow-[0_10px_20px_rgba(37,99,235,0.1)] hover:shadow-[0_15px_25px_rgba(37,99,235,0.15)] hover:translate-y-[-1px] active:translate-y-[1px] transition-all bg-white border-2 border-blue-600/80 text-blue-700 hover:bg-blue-50">
-                                        <FileText className="h-5 w-5 text-blue-600" />
+                                    <Button className="w-full h-14 text-sm font-bold gap-3 rounded-2xl shadow-[0_10px_20px_rgba(15,23,42,0.1)] hover:shadow-[0_15px_25px_rgba(15,23,42,0.15)] hover:translate-y-[-1px] active:translate-y-[1px] transition-all bg-slate-900 text-white hover:bg-slate-800 border-none">
+                                        <FileText className="h-5 w-5 text-blue-400" />
                                         Ver Certificado Digital
-                                        <ExternalLink className="h-4 w-4 opacity-60 ml-auto" />
+                                        <ExternalLink className="h-4 w-4 opacity-50 ml-auto" />
                                     </Button>
                                 </a>
                             ) : !isReference && (
-                                <div className="bg-amber-50/50 border border-amber-200/50 p-4 rounded-2xl text-amber-900 text-xs flex gap-3 shadow-sm w-full">
+                                <div className="bg-amber-50/50 border border-amber-200/50 p-4 rounded-2xl text-amber-900 text-xs flex gap-3 shadow-none w-full">
                                     <FileText className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                                     <div>
                                         <p className="font-bold text-amber-800 tracking-wide uppercase text-[10px]">Certificado Digital Ausente</p>
@@ -177,11 +177,11 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                             )}
 
                             {equipment.status === 'IRA_VENCER' && (
-                                <div className="bg-amber-50 border border-amber-200/80 p-4 rounded-2xl text-amber-900 text-xs flex gap-3 shadow-md w-full mt-2 ring-1 ring-amber-200/20">
+                                <div className="bg-amber-50 border border-amber-200/60 p-5 rounded-2xl text-amber-900 text-xs flex gap-3 shadow-lg w-full mt-2 ring-1 ring-amber-500/10">
                                     <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                                     <div>
                                         <p className="font-bold text-amber-800 tracking-wide uppercase text-[10px]">Aviso de Vencimento Próximo</p>
-                                        <p className="opacity-90 mt-1 leading-relaxed text-amber-700 font-semibold">
+                                        <p className="opacity-90 mt-1 leading-relaxed text-amber-800 font-bold text-[13px]">
                                             {expirationMessage || 'Este equipamento encontra-se calibrado, porém seu certificado expira em breve.'}
                                         </p>
                                     </div>
@@ -190,7 +190,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                         </div>
 
                         {/* Information Grid Section */}
-                        <div className="bg-slate-50 border border-slate-200/40 rounded-[2rem] p-6 space-y-8 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
+                        <div className="bg-white border border-slate-200/60 rounded-[2rem] p-6 space-y-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.04)] overflow-hidden">
                             <div className="grid grid-cols-2 gap-y-8 gap-x-4">
                                 <div className="space-y-2">
                                     <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest flex items-center gap-2">
@@ -213,7 +213,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                                     <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest flex items-center gap-2">
                                         <Calendar className="h-3.5 w-3.5 text-blue-600/70" /> Próxima Calibração
                                     </span>
-                                    <p className="text-sm font-bold text-slate-800 italic tracking-wide">
+                                    <p className="text-sm font-extrabold text-slate-900 italic tracking-wide">
                                         {getNextCalibrationText()}
                                     </p>
                                 </div>
@@ -223,7 +223,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                                         <UserIcon className="h-3.5 w-3.5 text-blue-600/70" /> Responsável
                                     </span>
                                     <div className="flex items-center gap-2.5">
-                                        <div className="w-8 h-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm">
+                                        <div className="w-8 h-8 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm">
                                             {getResponsibleInitial()}
                                         </div>
                                         <p className="text-sm font-bold text-slate-800 tracking-wide truncate leading-none">
@@ -234,7 +234,7 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                             </div>
 
                             {/* Divider Line */}
-                            <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent pt-2" />
+                            <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-100 to-transparent pt-2" />
 
                             <div className="text-center">
                                 <p className="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">
