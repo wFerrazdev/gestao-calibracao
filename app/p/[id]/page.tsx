@@ -60,22 +60,13 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
 
         switch (equipment.status) {
             case 'CALIBRADO':
+            case 'IRA_VENCER':
                 return (
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-emerald-500/50 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
                         <Badge className="relative bg-[#10B981] text-white hover:bg-[#10B981] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
                             <CheckCircle2 className="h-4 w-4 shrink-0" />
                             Equipamento Calibrado
-                        </Badge>
-                    </div>
-                );
-            case 'IRA_VENCER':
-                return (
-                    <div className="relative group">
-                        <div className="absolute -inset-0.5 bg-amber-500/50 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
-                        <Badge className="relative bg-[#F59E0B] text-white hover:bg-[#F59E0B] border-none px-6 py-3 rounded-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2 uppercase whitespace-nowrap">
-                            <AlertTriangle className="h-4 w-4 shrink-0" />
-                            Irá Vencer
                         </Badge>
                     </div>
                 );
@@ -107,6 +98,15 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                 );
         }
     };
+
+    // Calculate days until expiration if equipment is IRA_VENCER
+    let daysUntilExpiration = null;
+    if (equipment.status === 'IRA_VENCER' && equipment.dueDate) {
+        const today = new Date();
+        const dueDate = new Date(equipment.dueDate);
+        const timeDiff = dueDate.getTime() - today.getTime();
+        daysUntilExpiration = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    }
 
     return (
         <div className="fixed inset-0 bg-[#030712] overflow-y-auto overflow-x-hidden selection:bg-cyan-500/30 touch-pan-y">
@@ -167,6 +167,22 @@ export default async function PublicRedirectPage({ params }: { params: Promise<{
                                     <div>
                                         <p className="font-bold text-amber-200 tracking-wide uppercase text-[10px]">Certificado Digital Ausente</p>
                                         <p className="opacity-70 mt-1 leading-relaxed">Este equipamento ainda não possui um certificado digital anexado ao sistema.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {equipment.status === 'IRA_VENCER' && (
+                                <div className="bg-amber-950/20 border border-amber-500/20 p-4 rounded-2xl text-amber-200/80 text-xs flex gap-3 shadow-sm w-full backdrop-blur-sm mt-2">
+                                    <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-amber-200 tracking-wide uppercase text-[10px]">Aviso de Vencimento Próximo</p>
+                                        <p className="opacity-70 mt-1 leading-relaxed">
+                                            Este equipamento encontra-se calibrado, porém seu certificado expira {
+                                                daysUntilExpiration !== null && daysUntilExpiration >= 0
+                                                    ? `em ${daysUntilExpiration} dias.`
+                                                    : `em breve.`
+                                            }
+                                        </p>
                                     </div>
                                 </div>
                             )}

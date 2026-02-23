@@ -47,9 +47,8 @@ async function drawLabel(doc: jsPDF, item: LabelData, xOffset: number, origin: s
     // Status
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
-    const statusText = item.status === 'CALIBRADO' ? 'CALIBRADO' :
-        item.status === 'IRA_VENCER' ? 'IRÁ VENCER' :
-            item.status === 'VENCIDO' ? 'VENCIDO' : item.status;
+    const statusText = (item.status === 'CALIBRADO' || item.status === 'IRA_VENCER') ? 'CALIBRADO' :
+        item.status === 'VENCIDO' ? 'VENCIDO' : item.status;
 
     doc.text(statusText, contentXOffset, 20);
 
