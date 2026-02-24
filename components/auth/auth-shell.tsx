@@ -2,7 +2,7 @@
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { GtHoverLogo } from "@/components/ui/gt-hover-logo";
-import { HexagonBackground } from "@/components/ui/hexagon-background";
+import { Meteors } from "@/components/ui/meteors";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useEffectsMode } from "@/hooks/use-effects-mode";
@@ -17,42 +17,33 @@ export function AuthShell({ children }: AuthShellProps) {
 
     const isDark = resolvedTheme === "dark";
 
-    // Dark theme: cyan glow on near-black background (original feel)
-    // Light theme: soft blue glow on near-white background
-    const hexProps = isDark
+    // Dark theme: cyan meteors on near-black
+    // Light theme: soft slate-blue meteors on near-white
+    const meteorProps = isDark
         ? {
-            glowColor: "rgba(29, 128, 241, 0.7)",
-            borderColor: "rgba(100, 116, 139, 0.65)",
-            hexFillColor: "#020c1b",
-            vignetteGradient: "radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.80) 100%)",
+            className: "bg-[#020c1b]",
+            color: "#1d80f1",
+            tailColor: "#1d80f1",
+            count: 20,
         }
         : {
-            glowColor: "rgba(37, 99, 235, 0.75)",
-            borderColor: "rgba(193, 205, 221, 0.9)",
-            hexFillColor: "#f8fafc",
-            vignetteGradient: "radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(100,116,139,0.12) 80%, rgba(71,85,105,0.20) 100%)",
+            className: "bg-slate-100",
+            color: "#94a3b8",
+            tailColor: "#94a3b8",
+            count: 20,
         };
 
     return (
         <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-x-hidden">
-            {/* Background — sits behind content but still receives pointer events */}
-            <div className="fixed inset-0 w-full h-full">
-                {/* Base background color */}
-                <div className="absolute inset-0 bg-slate-50 dark:bg-[#020c1b]" />
+            {/* Meteors background */}
+            <Meteors
+                className={meteorProps.className}
+                color={meteorProps.color}
+                tailColor={meteorProps.tailColor}
+                count={meteorProps.count}
+            />
 
-                {/* Hexagon grid */}
-                <HexagonBackground
-                    className="absolute inset-0"
-                    hexagonSize={55}
-                    hexagonMargin={1.3}
-                    glowColor={hexProps.glowColor}
-                    borderColor={hexProps.borderColor}
-                    hexFillColor={hexProps.hexFillColor}
-                    vignetteGradient={hexProps.vignetteGradient}
-                />
-            </div>
-
-            <div className="absolute top-4 right-4 z-50 pointer-events-auto">
+            <div className="absolute top-4 right-4 z-50">
                 <ModeToggle />
             </div>
 
