@@ -2,7 +2,7 @@
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { GtHoverLogo } from "@/components/ui/gt-hover-logo";
-import { Meteors } from "@/components/ui/meteors";
+import { NeuralNetwork } from "@/components/ui/neural-network";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useEffectsMode } from "@/hooks/use-effects-mode";
@@ -17,30 +17,39 @@ export function AuthShell({ children }: AuthShellProps) {
 
     const isDark = resolvedTheme === "dark";
 
-    // Dark theme: cyan meteors on near-black
-    // Light theme: soft slate-blue meteors on near-white
-    const meteorProps = isDark
+    const bgProps = isDark
         ? {
+            // Deep navy + cyan neural network
             className: "bg-[#020c1b]",
-            color: "#1d80f1",
-            tailColor: "#1d80f1",
-            count: 20,
+            colorRGB: "29, 128, 241",
+            particleCount: 80,
+            maxDistance: 150,
+            speed: 0.3,
+            vignetteGradient:
+                "radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(0,5,20,0.55) 75%, rgba(0,5,20,0.85) 100%)",
         }
         : {
-            className: "bg-slate-100",
-            color: "#94a3b8",
-            tailColor: "#94a3b8",
-            count: 20,
+            // Crisp white + subtle indigo neural network
+            className: "bg-white",
+            colorRGB: "99, 102, 241",
+            particleCount: 70,
+            maxDistance: 140,
+            speed: 0.25,
+            // Very light vignette — barely visible in light mode
+            vignetteGradient:
+                "radial-gradient(ellipse at center, transparent 0%, transparent 45%, rgba(99,102,241,0.05) 80%, rgba(71,85,105,0.10) 100%)",
         };
 
     return (
         <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-x-hidden">
-            {/* Meteors background */}
-            <Meteors
-                className={meteorProps.className}
-                color={meteorProps.color}
-                tailColor={meteorProps.tailColor}
-                count={meteorProps.count}
+            {/* Neural Network background */}
+            <NeuralNetwork
+                className={bgProps.className}
+                colorRGB={bgProps.colorRGB}
+                particleCount={bgProps.particleCount}
+                maxDistance={bgProps.maxDistance}
+                speed={bgProps.speed}
+                vignetteGradient={bgProps.vignetteGradient}
             />
 
             <div className="absolute top-4 right-4 z-50">
@@ -50,11 +59,15 @@ export function AuthShell({ children }: AuthShellProps) {
             <div className="flex flex-col items-center justify-center p-4 relative z-10 w-full pointer-events-none">
                 <div
                     className={cn(
-                        "pointer-events-auto w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-[0_24px_80px_-30px_rgba(0,0,0,0.35)] dark:shadow-[0_30px_110px_-40px_rgba(0,0,0,0.85)] dark:ring-1 dark:ring-white/10 dark:bg-[#0b1727] grid lg:grid-cols-2 relative z-20",
+                        "pointer-events-auto w-full max-w-5xl overflow-hidden rounded-2xl shadow-[0_24px_80px_-30px_rgba(0,0,0,0.35)] dark:shadow-[0_30px_110px_-40px_rgba(0,0,0,0.85)] dark:ring-1 dark:ring-white/10 grid lg:grid-cols-2 relative z-20",
+                        isDark ? "bg-[#0b1727]" : "bg-white/90",
                         effectsMode === "full" ? "backdrop-blur-xl" : "backdrop-blur-sm"
                     )}
                 >
-                    <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16 bg-white/80 dark:bg-[#0A192F]/80 h-full">
+                    <div className={cn(
+                        "flex flex-col justify-center p-8 sm:p-12 lg:p-16 h-full",
+                        isDark ? "bg-[#0A192F]/70" : "bg-white/80"
+                    )}>
                         {children}
                     </div>
                     <div className="relative hidden flex-col justify-center items-center overflow-hidden bg-slate-900 dark:bg-[#112240] p-12 text-white lg:flex h-full">
