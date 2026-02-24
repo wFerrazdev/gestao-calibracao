@@ -24,7 +24,7 @@ export function AuthShell({ children }: AuthShellProps) {
             colorRGB: "29, 128, 241",
             particleCount: 80,
             maxDistance: 150,
-            speed: 0.3,
+            speed: 0.7,
             vignetteGradient:
                 "radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(0,5,20,0.55) 75%, rgba(0,5,20,0.85) 100%)",
         }
@@ -34,7 +34,7 @@ export function AuthShell({ children }: AuthShellProps) {
             colorRGB: "99, 102, 241",
             particleCount: 70,
             maxDistance: 140,
-            speed: 0.25,
+            speed: 0.6,
             // Very light vignette — barely visible in light mode
             vignetteGradient:
                 "radial-gradient(ellipse at center, transparent 0%, transparent 45%, rgba(99,102,241,0.05) 80%, rgba(71,85,105,0.10) 100%)",
