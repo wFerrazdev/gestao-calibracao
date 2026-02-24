@@ -156,7 +156,6 @@ export default function DashboardPage() {
         { name: 'Vencido', value: data.countByStatus.VENCIDO, fill: STATUS_COLORS.VENCIDO },
         { name: 'Referência', value: data.countByStatus.REFERENCIA, fill: STATUS_COLORS.REFERENCIA },
         { name: 'Desativado', value: data.countByStatus.DESATIVADO, fill: STATUS_COLORS.DESATIVADO },
-        { name: 'Sucateado', value: data.countByStatus.SUCATEADO, fill: STATUS_COLORS.SUCATEADO },
     ] : [];
 
     const approvalChartData = data ? [
