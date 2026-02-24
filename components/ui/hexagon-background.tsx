@@ -16,6 +16,8 @@ export interface HexagonBackgroundProps {
     borderColor?: string
     /** Inner fill color of hexagons */
     hexFillColor?: string
+    /** Custom vignette gradient string. Pass 'none' to disable. */
+    vignetteGradient?: string
 }
 
 export function HexagonBackground({
@@ -26,6 +28,7 @@ export function HexagonBackground({
     glowColor,
     borderColor,
     hexFillColor,
+    vignetteGradient = "radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.80) 100%)",
 }: HexagonBackgroundProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const [grid, setGrid] = useState({ rows: 0, cols: 0, scale: 1 })
@@ -134,13 +137,12 @@ export function HexagonBackground({
             )}
 
             {/* Vignette — shadow frame around the edges */}
-            <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                    background:
-                        "radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.80) 100%)",
-                }}
-            />
+            {vignetteGradient !== "none" && (
+                <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: vignetteGradient }}
+                />
+            )}
 
             {/* Content layer */}
             {children && <div className="relative z-10 h-full w-full">{children}</div>}
