@@ -42,7 +42,7 @@ export function AuthShell({ children }: AuthShellProps) {
                 <HexagonBackground
                     className="absolute inset-0"
                     hexagonSize={55}
-                    hexagonMargin={3}
+                    hexagonMargin={1.8}
                     glowColor={hexProps.glowColor}
                     borderColor={hexProps.borderColor}
                     hexFillColor={hexProps.hexFillColor}
