@@ -21,13 +21,13 @@ export function AuthShell({ children }: AuthShellProps) {
     // Light theme: soft blue glow on near-white background
     const hexProps = isDark
         ? {
-            glowColor: "rgba(34, 211, 238, 0.5)",
-            borderColor: "rgba(63, 63, 70, 0.45)",
+            glowColor: "rgba(34, 211, 238, 0.7)",
+            borderColor: "rgba(100, 116, 139, 0.65)",
             hexFillColor: "#020c1b",
         }
         : {
-            glowColor: "rgba(59, 130, 246, 0.25)",
-            borderColor: "rgba(203, 213, 225, 0.7)",
+            glowColor: "rgba(37, 99, 235, 0.75)",
+            borderColor: "rgba(148, 163, 184, 0.9)",
             hexFillColor: "#f8fafc",
         };
 
