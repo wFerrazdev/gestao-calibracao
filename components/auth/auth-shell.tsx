@@ -22,7 +22,7 @@ export function AuthShell({ children }: AuthShellProps) {
     const hexProps = isDark
         ? {
             glowColor: "rgba(34, 211, 238, 0.7)",
-            borderColor: "rgba(100, 116, 139, 0.65)",
+            borderColor: "rgba(100, 116, 139, 0.45)",
             hexFillColor: "#020c1b",
         }
         : {

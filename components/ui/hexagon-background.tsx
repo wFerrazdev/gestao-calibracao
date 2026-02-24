@@ -22,7 +22,7 @@ export function HexagonBackground({
     className,
     children,
     hexagonSize = 60,
-    hexagonMargin = 2,
+    hexagonMargin = 0.2,
     glowColor,
     borderColor,
     hexFillColor,
@@ -133,12 +133,12 @@ export function HexagonBackground({
                 />
             )}
 
-            {/* Vignette */}
+            {/* Vignette — shadow frame around the edges */}
             <div
                 className="pointer-events-none absolute inset-0"
                 style={{
                     background:
-                        "radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(0,0,0,0.12) 100%)",
+                        "radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.80) 100%)",
                 }}
             />
 
