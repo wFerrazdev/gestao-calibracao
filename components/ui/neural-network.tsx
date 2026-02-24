@@ -89,7 +89,7 @@ export function NeuralNetwork({
                     const dy = particles[i].y - particles[j].y
                     const d = Math.sqrt(dx * dx + dy * dy)
                     if (d < maxDistance) {
-                        const alpha = (1 - d / maxDistance) * 0.3
+                        const alpha = (1 - d / maxDistance) * 0.50
                         ctx.beginPath()
                         ctx.moveTo(particles[i].x, particles[i].y)
                         ctx.lineTo(particles[j].x, particles[j].y)
@@ -107,7 +107,7 @@ export function NeuralNetwork({
                 if (p.isNode) {
                     // Soft radial glow for hub nodes
                     const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 8)
-                    grd.addColorStop(0, `rgba(${colorRGB}, 0.25)`)
+                    grd.addColorStop(0, `rgba(${colorRGB}, 0.13)`)
                     grd.addColorStop(1, `rgba(${colorRGB}, 0)`)
                     ctx.beginPath()
                     ctx.arc(p.x, p.y, r * 8, 0, Math.PI * 2)
@@ -117,7 +117,7 @@ export function NeuralNetwork({
 
                 ctx.beginPath()
                 ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
-                ctx.fillStyle = `rgba(${colorRGB}, ${p.isNode ? 0.92 : 0.55})`
+                ctx.fillStyle = `rgba(${colorRGB}, ${p.isNode ? 0.70 : 0.55})`
                 ctx.fill()
             }
 
