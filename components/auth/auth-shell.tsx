@@ -33,8 +33,8 @@ export function AuthShell({ children }: AuthShellProps) {
 
     return (
         <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-x-hidden">
-            {/* Background Wrapper */}
-            <div className="fixed inset-0 w-full h-full -z-10">
+            {/* Background — sits behind content but still receives pointer events */}
+            <div className="fixed inset-0 w-full h-full">
                 {/* Base background color */}
                 <div className="absolute inset-0 bg-slate-50 dark:bg-[#020c1b]" />
 
@@ -42,21 +42,21 @@ export function AuthShell({ children }: AuthShellProps) {
                 <HexagonBackground
                     className="absolute inset-0"
                     hexagonSize={55}
-                    hexagonMargin={2}
+                    hexagonMargin={0}
                     glowColor={hexProps.glowColor}
                     borderColor={hexProps.borderColor}
                     hexFillColor={hexProps.hexFillColor}
                 />
             </div>
 
-            <div className="absolute top-4 right-4 z-50">
+            <div className="absolute top-4 right-4 z-50 pointer-events-auto">
                 <ModeToggle />
             </div>
 
-            <div className="flex flex-col items-center justify-center p-4 relative z-10 w-full">
+            <div className="flex flex-col items-center justify-center p-4 relative z-10 w-full pointer-events-none">
                 <div
                     className={cn(
-                        "w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-[0_24px_80px_-30px_rgba(0,0,0,0.35)] dark:shadow-[0_30px_110px_-40px_rgba(0,0,0,0.85)] dark:ring-1 dark:ring-white/10 dark:bg-[#0b1727] grid lg:grid-cols-2 relative z-20",
+                        "pointer-events-auto w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-[0_24px_80px_-30px_rgba(0,0,0,0.35)] dark:shadow-[0_30px_110px_-40px_rgba(0,0,0,0.85)] dark:ring-1 dark:ring-white/10 dark:bg-[#0b1727] grid lg:grid-cols-2 relative z-20",
                         effectsMode === "full" ? "backdrop-blur-xl" : "backdrop-blur-sm"
                     )}
                 >
